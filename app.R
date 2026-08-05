@@ -1,5 +1,5 @@
 # =============================================================================
-# Shiny App – Systematic Review Data Visualisation
+# Shiny App - Systematic Review Data Visualisation
 # =============================================================================
 
 library(shiny)
@@ -7,6 +7,7 @@ library(readxl)
 library(DT)
 library(shinyjs)
 library(dplyr)
+library(writexl)
 
 source("shiny_aux/helpers.R")
 source("shiny_aux/config.R")
@@ -53,6 +54,14 @@ ui <- fluidPage(
       # ---- Advanced filters (collapsible) ----
       advancedFiltersUI("advanced"),
 
+      div(
+        style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
+        downloadButton(
+          "downloadFull",
+          "Download Study Characteristics",
+          class = "btn-sm"
+        )
+      ),
       DTOutput("studies_table")
     )
   )
@@ -60,27 +69,6 @@ ui <- fluidPage(
 
 # ---- Server logic ----
 server <- function(input, output, session) {
-  # Dynamically create one radioButtons per population code
-  output$population_filters <- renderUI({
-    choices <- c(
-      "Ignore" = "ignore",
-      "Include" = "include",
-      "Exclude" = "exclude"
-    )
-    pop_names <- unname(pop_code_to_full) # e.g. "Older Adults"
-    pop_codes <- names(pop_code_to_full) # e.g. "OA"
-
-    lapply(seq_along(pop_code_to_full), function(i) {
-      radioButtons(
-        inputId = paste0("pop_", pop_codes[i]),
-        label = pop_names[i],
-        choices = choices,
-        selected = "ignore",
-        inline = TRUE
-      )
-    })
-  })
-
   # age_filter <- ageGroupFilterServer("age_group", pop_long)
   # pop_type_filter <- popTypeFilterServer("pop_type", pop_long)
   # virus_filter <- virusFilterServer("virus", virus_long)
@@ -114,8 +102,8 @@ server <- function(input, output, session) {
     char_data %>% filter(char_row_id %in% keep_ids)
   })
 
-  output$studies_table <- renderDT({
-    # display <- char_data
+  # ---- Prepare the final displayed data (clickable links, hidden cols, reorder) ----
+  processed_data <- reactive({
     display <- filtered_data()
 
     # Add hidden numeric column for Total N sorting
@@ -134,7 +122,11 @@ server <- function(input, output, session) {
 
     # Reorder columns
     display <- display[, intersect(column_order, names(display)), drop = FALSE]
+    display
+  })
 
+  output$studies_table <- renderDT({
+    display <- processed_data()
     # Build columnDefs
     col_defs <- make_col_defs(display, desired_widths)
 
@@ -166,6 +158,15 @@ server <- function(input, output, session) {
       )
     )
   })
+  # ---- Download handlers ----
+  output$downloadFull <- downloadHandler(
+    filename = function() {
+      "All_Study_Characteristics.xlsx"
+    },
+    content = function(file) {
+      file.copy(char_path, file)
+    }
+  )
 }
 
 # ---- Run the app ----

@@ -136,7 +136,7 @@ studyDesignFilterServer <- function(id, char_data) {
       }
     })
 
-    # Filter logic – uses the main characteristics table directly
+    # Filter logic - uses the main characteristics table directly
     reactive({
       selected <- input$designs
       if (is.null(selected) || length(selected) == 0) {
@@ -275,7 +275,6 @@ advancedFilterServer <- function(id, pop_long) {
     })
 
     output$age_adv_message <- renderText({
-      # vapply with default "ignore" if input is NULL
       states <- vapply(
         age_codes,
         function(code) {
@@ -284,18 +283,20 @@ advancedFilterServer <- function(id, pop_long) {
         },
         character(1)
       )
+
       if (all(states == "ignore")) {
-        return("All groups set to Ignore - showing all ages (no filtering)")
+        return("All groups set to Ignore – showing all ages (no filtering)")
       }
-      inc <- age_full[states == "include"]
-      exc <- age_full[states == "exclude"]
+
+      inc <- pop_code_to_full[age_codes][states == "include"]
+      exc <- pop_code_to_full[age_codes][states == "exclude"]
       msg <- ""
       if (length(inc) > 0) {
         msg <- paste0("Include: ", paste(inc, collapse = ", "))
       }
       if (length(exc) > 0) {
         if (nchar(msg) > 0) {
-          msg <- paste0(msg, "  AND  ")
+          msg <- paste0(msg, " AND ")
         }
         msg <- paste0(msg, "Exclude: ", paste(exc, collapse = ", "))
       }

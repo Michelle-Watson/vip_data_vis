@@ -10,11 +10,12 @@ always_hide <- c(
   "Funding Source",
   "Risk of Bias",
   "Country/Region",
-  "Study Design Specifics"
+  "Study Design Specifics",
+  "Link"
 )
 
 
-article_cols <- c("Journal", "PMID", "PMCID", "DOI", "Link")
+article_cols <- c("Journal", "PMID", "PMCID", "DOI")
 
 # --- Desired column order (all possible columns) ---
 column_order <- c(

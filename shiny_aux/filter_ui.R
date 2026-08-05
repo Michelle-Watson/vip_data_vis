@@ -125,57 +125,6 @@ simpleFiltersUI <- function(id) {
 
 # wellpanel makes the bg grey
 
-# ---- Advanced Filters panel (collapsible) ----
-advancedFiltersUI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    checkboxInput(ns("show"), "Show advanced filters", value = FALSE),
-    conditionalPanel(
-      condition = paste0("input['", ns("show"), "'] == true"),
-      wellPanel(
-        h4("Age Group (advanced)"),
-        uiOutput(ns("age_advanced")),
-        tags$div(class = "filter-message", textOutput(ns("age_adv_message"))),
-        br(),
-        h4("Population Type (advanced)"),
-        uiOutput(ns("pop_type_advanced")),
-        tags$div(
-          class = "filter-message",
-          textOutput(ns("pop_type_adv_message"))
-        )
-      )
-    )
-  )
-}
-
-
-advancedFiltersUI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    div(
-      style = "display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;",
-      checkboxInput(ns("show"), "Show advanced filters", value = FALSE),
-      div(
-        style = "display: flex; align-items: baseline; gap: 8px;",
-        actionLink(
-          ns("clear_advanced"),
-          label = "Clear all advanced filters \U1F9F9",
-          style = "color: #888; text-decoration: none; cursor: pointer;"
-        ),
-        textOutput(ns("cleared_msg"))
-      )
-    ),
-    conditionalPanel(
-      condition = paste0("input['", ns("show"), "'] == true"),
-      wellPanel(
-        h4("Population (advanced)"),
-        uiOutput(ns("population_advanced"))
-        # Other advanced filters will be added here later
-      )
-    )
-  )
-}
-
 # most recent, lets try this
 advancedFiltersUI <- function(id) {
   ns <- NS(id)
