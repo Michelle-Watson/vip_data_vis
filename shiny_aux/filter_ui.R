@@ -90,6 +90,25 @@ robFilterUI <- function(id) {
   )
 }
 
+domainFilterUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h4("Domains", style = "margin-bottom: 20px;"),
+    checkboxGroupInput(
+      ns("domains"),
+      label = NULL,
+      choices = c(
+        "Effectiveness" = "Effectiveness",
+        "Safety" = "Safety",
+        "Pregnancy-specific safety" = "Pregnancy-specific safety",
+        "Epidemiologic" = "Epidemiologic"
+      ),
+      selected = NULL
+    ),
+    tags$div(class = "filter-message", textOutput(ns("domain_message")))
+  )
+}
+
 simpleFiltersUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -116,6 +135,7 @@ simpleFiltersUI <- function(id) {
           column(2, popTypeFilterUI(ns("pop_type"))),
           column(2, virusFilterUI(ns("virus"))),
           column(2, studyDesignFilterUI(ns("study_design"))),
+          column(2, domainFilterUI(ns("domain"))),
           column(2, robFilterUI(ns("rob")))
         )
       )

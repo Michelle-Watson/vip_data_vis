@@ -23,6 +23,7 @@ char_data <- read_excel(char_path, sheet = "Study Characteristics")
 pop_long <- read_excel(char_path, sheet = "Population_Long")
 n_long <- read_excel(char_path, sheet = "N_Long")
 virus_long <- read_excel(char_path, sheet = "Virus_Long")
+outcomes_long <- read_excel(char_path, sheet = "Outcomes_Long")
 rob_long <- read_excel(char_path, sheet = "RoB_Long")
 
 
@@ -137,6 +138,7 @@ server <- function(input, output, session) {
     "simple_filters-study_design",
     char_data
   )
+  domain_filter <- domainFilterServer("simple_filters-domain", outcomes_long)
   rob_filter <- robFilterServer("simple_filters-rob", rob_long)
   simpleFiltersServer("simple_filters")
 
@@ -147,12 +149,21 @@ server <- function(input, output, session) {
     ids_type <- pop_type_filter()
     ids_virus <- virus_filter()
     ids_design <- study_design_filter()
+    ids_domain <- domain_filter()
     ids_rob <- rob_filter()
     ids_adv <- advanced_filter()
 
     keep_ids <- Reduce(
       intersect,
-      list(ids_age, ids_type, ids_virus, ids_design, ids_rob, ids_adv)
+      list(
+        ids_age,
+        ids_type,
+        ids_virus,
+        ids_design,
+        ids_domain,
+        ids_rob,
+        ids_adv
+      )
     )
     char_data %>% filter(char_row_id %in% keep_ids)
   })

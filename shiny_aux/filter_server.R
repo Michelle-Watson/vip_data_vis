@@ -200,6 +200,40 @@ robFilterServer <- function(id, rob_long) {
   })
 }
 
+domainFilterServer <- function(id, outcomes_long) {
+  moduleServer(id, function(input, output, session) {
+    output$domain_message <- renderText({
+      selected <- input$domains
+      if (is.null(selected) || length(selected) == 0) {
+        return("Showing studies from all domains")
+      }
+      if (length(selected) == 1) {
+        paste("Showing studies that include", selected)
+      } else if (length(selected) == 2) {
+        paste("Showing studies that include", selected[1], "or", selected[2])
+      } else {
+        paste(
+          "Showing studies that include",
+          paste(selected[-length(selected)], collapse = ", "),
+          "or",
+          selected[length(selected)]
+        )
+      }
+    })
+
+    reactive({
+      selected <- input$domains
+      if (is.null(selected) || length(selected) == 0) {
+        return(unique(outcomes_long$char_row_id))
+      }
+      outcomes_long %>%
+        filter(Domain %in% selected) %>%
+        pull(char_row_id) %>%
+        unique()
+    })
+  })
+}
+
 simpleFiltersServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     # Observe the clear button click (id is "clear_simple" inside this module)
@@ -223,6 +257,11 @@ simpleFiltersServer <- function(id) {
       updateCheckboxGroupInput(
         session,
         "study_design-designs",
+        selected = character(0)
+      )
+      updateCheckboxGroupInput(
+        session,
+        "domain-domains",
         selected = character(0)
       )
       updateCheckboxGroupInput(
