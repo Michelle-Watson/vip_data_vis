@@ -84,7 +84,7 @@ ui <- fluidPage(
         ),
       ),
       tags$p(
-        "The systematic review includes studies published between [YEAR RANGE]."
+        "The systematic review includes studies published between January 2020 – July 2026."
       )
     ),
     tabPanel(
