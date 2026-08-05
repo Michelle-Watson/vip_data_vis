@@ -85,7 +85,7 @@ ui <- fluidPage(
         ),
       ),
       tags$p(
-        "The systematic review includes studies published between January 2020 – July 2026."
+        "The systematic review includes studies published between January 2020 - July 2026."
       )
     ),
     tabPanel(
@@ -117,6 +117,11 @@ ui <- fluidPage(
           "Download Study Characteristics",
           class = "btn-sm"
         )
+      ),
+      tags$div(
+        class = "filter-message",
+        style = "margin-bottom: 10px; font-size: 15px;",
+        textOutput("study_count")
       ),
       DTOutput("studies_table")
     )
@@ -201,6 +206,14 @@ server <- function(input, output, session) {
     # }
 
     display
+  })
+
+  output$study_count <- renderText({
+    n <- nrow(processed_data())
+    if (n == 0) {
+      return("No studies match the current filters")
+    }
+    paste("Showing", n, "studies")
   })
 
   output$studies_table <- renderDT({

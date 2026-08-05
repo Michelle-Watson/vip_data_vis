@@ -281,6 +281,7 @@ simpleFiltersServer <- function(id) {
   })
 }
 
+
 # ---- Advanced filter server (currently only population tri‑state) ----
 advancedFilterServer <- function(id, pop_long) {
   moduleServer(id, function(input, output, session) {
