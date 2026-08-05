@@ -8,7 +8,7 @@ always_hide <- c(
   "Vaccine Products",
   "Outcomes Reported",
   "Funding Source",
-  "Risk of Bias",
+  # "Risk of Bias",
   "Country/Region",
   "Study Design Specifics",
   "Link"
@@ -49,6 +49,7 @@ desired_widths <- c(
   "Population" = 130,
   "Total N" = 80,
   "Study Design" = 160,
+  "Risk of Bias" = 120,
   "Virus" = 130
 )
 
