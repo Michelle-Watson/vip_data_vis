@@ -8,9 +8,9 @@ always_hide <- c(
   # "Study Period End",
   "Setting Details",
   "Vaccine Products",
-  "Outcomes Reported",
   "Funding Source",
   # "Risk of Bias",
+  "Outcomes Reported (Characteristics Consensus)",
   "Country/Region",
   "Study Design Specifics",
   "Link"
@@ -38,7 +38,8 @@ column_order <- c(
   "Country/Region",
   "Setting Details",
   "Vaccine Products",
-  "Outcomes Reported",
+  "Domains Reported",
+  # "Outcomes Reported",
   "Funding Source",
   "Risk of Bias",
   "Journal",
@@ -55,8 +56,10 @@ desired_widths <- c(
   "Total N" = 80,
   "Study Design" = 160,
   "Risk of Bias" = 120,
-  "Virus" = 130,
-  "Study Period" = 130
+  "Virus" = 100,
+  "Study Period" = 130,
+  "Domains Reported" = 120,
+  "Outcomes Reported" = 150
 )
 
 pop_code_to_full <- c(
