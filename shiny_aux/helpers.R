@@ -27,6 +27,9 @@ make_study_clickable <- function(df) {
     ifelse(has_doi, df$DOI, NA_character_)
   )
 
+  # Save plain text for sorting
+  df$Study_plain <- df$Study
+
   df$Study <- ifelse(
     !is.na(chosen_url),
     paste0('<a href="', chosen_url, '" target="_blank">', df$Study, '</a>'),

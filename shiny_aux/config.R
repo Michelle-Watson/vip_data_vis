@@ -22,6 +22,7 @@ column_order <- c(
   "char_row_id",
   "Covidence ID",
   "Study",
+  "Study_plain",
   "Virus",
   "Population",
   "Age (years)",

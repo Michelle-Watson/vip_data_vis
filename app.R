@@ -177,6 +177,18 @@ server <- function(input, output, session) {
 
     # Reorder columns
     display <- display[, intersect(column_order, names(display)), drop = FALSE]
+    # Sort by the plain‑text study name (ascending)
+    display <- display %>% arrange(Study_plain)
+    # Remove the helper column – no longer needed
+    display <- display %>% select(-Study_plain)
+
+    # if ("Study_plain" %in% names(display)) {
+    #   display <- display %>% arrange(Study_plain)
+    # } else {
+    #   # Fallback: sort by the HTML Study column (will sort alphabetically)
+    #   display <- display %>% arrange(Study)
+    # }
+
     display
   })
 
@@ -190,9 +202,15 @@ server <- function(input, output, session) {
     total_n_visible_idx <- which(names(display) == "Total N") - 1
     n_numeric_idx <- which(names(display) == "N_numeric") - 1
 
+    # Make the visible Study column sort by the hidden plain‑text column
+    # study_visible_idx <- which(names(display) == "Study") - 1
+    # study_plain_idx <- which(names(display) == "Study_plain") - 1
+
     col_defs <- c(
       col_defs,
       list(
+        # list(targets = study_visible_idx, orderData = study_plain_idx),
+        # list(targets = study_plain_idx, visible = FALSE),
         list(targets = total_n_visible_idx, orderData = n_numeric_idx),
         list(targets = n_numeric_idx, visible = FALSE)
       )
