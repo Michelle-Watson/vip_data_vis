@@ -206,13 +206,21 @@ server <- function(input, output, session) {
     # study_visible_idx <- which(names(display) == "Study") - 1
     # study_plain_idx <- which(names(display) == "Study_plain") - 1
 
+    # Hide the numeric study period columns and link Study Period to Study Period Start
+    sp_visible_idx <- which(names(display) == "Study Period") - 1
+    sp_start_idx <- which(names(display) == "Study Period Start") - 1
+    sp_end_idx <- which(names(display) == "Study Period End") - 1
+
     col_defs <- c(
       col_defs,
       list(
         # list(targets = study_visible_idx, orderData = study_plain_idx),
         # list(targets = study_plain_idx, visible = FALSE),
         list(targets = total_n_visible_idx, orderData = n_numeric_idx),
-        list(targets = n_numeric_idx, visible = FALSE)
+        list(targets = n_numeric_idx, visible = FALSE),
+        list(targets = sp_visible_idx, orderData = sp_start_idx),
+        list(targets = sp_start_idx, visible = FALSE),
+        list(targets = sp_end_idx, visible = FALSE)
       )
     )
 

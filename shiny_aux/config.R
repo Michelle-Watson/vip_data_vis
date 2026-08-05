@@ -3,7 +3,9 @@ always_hide <- c(
   "char_row_id",
   "Covidence ID",
   "Age (years)",
-  "Study Period",
+  # "Study Period",
+  # "Study Period Start",
+  # "Study Period End",
   "Setting Details",
   "Vaccine Products",
   "Outcomes Reported",
@@ -29,6 +31,8 @@ column_order <- c(
   "Total N",
   "N_numeric",
   "Study Period",
+  "Study Period Start",
+  "Study Period End",
   "Study Design",
   "Study Design Specifics",
   "Country/Region",
@@ -51,7 +55,8 @@ desired_widths <- c(
   "Total N" = 80,
   "Study Design" = 160,
   "Risk of Bias" = 120,
-  "Virus" = 130
+  "Virus" = 130,
+  "Study Period" = 130
 )
 
 pop_code_to_full <- c(
