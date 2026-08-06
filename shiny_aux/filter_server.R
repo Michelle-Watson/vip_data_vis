@@ -1,16 +1,22 @@
 studyPeriodFilterServer <- function(id, char_data) {
   moduleServer(id, function(input, output, session) {
-    # Year range from the full dataset (static)
+    # placeholder for filtered_data
+    filtered_data_reactive <- reactiveVal(NULL)
+
+    # function to inject filtered_data later
+    setFilteredData <- function(fd) {
+      filtered_data_reactive(fd)
+    }
+
     years <- as.integer(char_data$`Study Period Start`)
     years <- years[!is.na(years)]
     min_yr <- min(years)
     max_yr <- max(years)
 
-    # Render slider
     output$slider_ui <- renderUI({
       sliderInput(
         session$ns("year_range"),
-        label = NULL,
+        NULL,
         min = min_yr,
         max = max_yr,
         value = c(min_yr, max_yr),
@@ -19,23 +25,38 @@ studyPeriodFilterServer <- function(id, char_data) {
       )
     })
 
-    # Mini histogram (full data)
+    ids <- reactive({
+      sel <- input$year_range
+      if (is.null(sel)) {
+        return(unique(char_data$char_row_id))
+      }
+
+      char_data %>%
+        filter(
+          `Study Period Start` >= sel[1],
+          `Study Period Start` <= sel[2]
+        ) %>%
+        pull(char_row_id) %>%
+        unique()
+    })
+
     output$period_hist <- renderPlot(
       {
-        library(ggplot2)
+        fd <- filtered_data_reactive()
+        req(fd)
 
-        df <- data.frame(
-          year = names(table(years)),
-          count = as.numeric(table(years))
-        )
+        yrs <- fd$`Study Period Start`
+        yrs <- yrs[!is.na(yrs)]
 
-        ggplot(df, aes(x = year, y = count)) +
-          geom_col(fill = "#007bc2", width = 0.55) + # compressed bars
-          theme_void() + # removes background, axes, gridlines
+        hist_df <- as.data.frame(table(yrs))
+        names(hist_df) <- c("year", "count")
+
+        ggplot(hist_df, aes(x = year, y = count)) +
+          geom_col(fill = "#007bc2", width = 0.55) +
+          theme_void() +
           theme(
             plot.background = element_rect(fill = "transparent", color = NA),
             panel.background = element_rect(fill = "transparent", color = NA),
-            # panel.grid.major.y = element_line(color = "grey90", size = 0.3),  # optional subtle gridlines
             plot.margin = margin(0, 0, 0, 0)
           )
       },
@@ -43,30 +64,22 @@ studyPeriodFilterServer <- function(id, char_data) {
       bg = "transparent"
     )
 
-    # Dynamic message
     output$period_message <- renderText({
       sel <- input$year_range
-      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
+      if (is.null(sel)) {
         return("Showing all study periods")
       }
       paste("Showing studies with start year", sel[1], "to", sel[2])
     })
 
-    # Filter logic
-    reactive({
-      sel <- input$year_range
-      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
-        return(unique(char_data$char_row_id))
-      }
-      char_data %>%
-        filter(
-          `Study Period Start` >= sel[1] & `Study Period Start` <= sel[2]
-        ) %>%
-        pull(char_row_id) %>%
-        unique()
-    })
+    # return both the IDs and the setter
+    list(
+      ids = ids,
+      setFilteredData = setFilteredData
+    )
   })
 }
+
 
 # ---- Age Group filter server ----
 ageGroupFilterServer <- function(id, pop_long) {

@@ -8,6 +8,8 @@ library(DT)
 library(shinyjs)
 library(dplyr)
 library(writexl)
+library(plotly)
+
 
 source("shiny_aux/helpers.R")
 source("shiny_aux/config.R")
@@ -141,6 +143,7 @@ server <- function(input, output, session) {
   # study_design_filter <- studyDesignFilterServer("study_design", char_data)
   # rob_filter <- robFilterServer("rob", rob_long)
 
+  # ---- 1. Create all filters EXCEPT study period ----
   age_filter <- ageGroupFilterServer("simple_filters-age_group", pop_long)
   pop_type_filter <- popTypeFilterServer("simple_filters-pop_type", pop_long)
   virus_filter <- virusFilterServer("simple_filters-virus", virus_long)
@@ -150,16 +153,22 @@ server <- function(input, output, session) {
   )
   domain_filter <- domainFilterServer("simple_filters-domain", outcomes_long)
   rob_filter <- robFilterServer("simple_filters-rob", rob_long)
-  study_period_filter <- studyPeriodFilterServer(
+  advanced_filter <- advancedFilterServer("advanced", pop_long)
+
+  # ---- 2. Create the study period module (NO filtered_data yet) ----
+  # study_period_filter <- studyPeriodFilterServer(
+  #   "simple_filters-study_period",
+  #   char_data
+  # )
+  study_period_module <- studyPeriodFilterServer(
     "simple_filters-study_period",
     char_data
   )
-  simpleFiltersServer("simple_filters")
 
-  advanced_filter <- advancedFilterServer("advanced", pop_long)
-
+  # ---- 3. Now define filtered_data (safe because study_period_filter exists) ----
   filtered_data <- reactive({
-    ids_period <- study_period_filter()
+    # ids_period <- study_period_filter()
+    ids_period <- study_period_module$ids()
     ids_age <- age_filter()
     ids_type <- pop_type_filter()
     ids_virus <- virus_filter()
@@ -181,8 +190,46 @@ server <- function(input, output, session) {
         ids_adv
       )
     )
+
     char_data %>% filter(char_row_id %in% keep_ids)
   })
+
+  observe({
+    study_period_module$setFilteredData(filtered_data())
+  })
+
+  # ---- 4. Activate simple filters ----
+  simpleFiltersServer("simple_filters")
+
+  # output$`simple_filters-study_period-period_hist` <- renderPlotly({
+  #   df <- filtered_data()
+  #
+  #   yrs <- df$`Study Period Start`
+  #   yrs <- yrs[!is.na(yrs)]
+  #
+  #   hist_df <- as.data.frame(table(yrs))
+  #   names(hist_df) <- c("year", "count")
+  #   hist_df$year <- as.integer(as.character(hist_df$year))
+  #
+  #   plot_ly(
+  #     data = hist_df,
+  #     x = ~year,
+  #     y = ~count,
+  #     type = "bar",
+  #     marker = list(color = "#007bc2"),
+  #     width = 0.6
+  #   ) %>%
+  #     layout(
+  #       autosize = FALSE,
+  #       width = 250, # ← add this
+  #       height = 80, # ← add this
+  #       xaxis = list(visible = FALSE),
+  #       yaxis = list(visible = FALSE),
+  #       plot_bgcolor = "rgba(0,0,0,0)",
+  #       paper_bgcolor = "rgba(0,0,0,0)",
+  #       margin = list(l = 0, r = 0, t = 0, b = 0)
+  #     )
+  # })
 
   # ---- Prepare the final displayed data (clickable links, hidden cols, reorder) ----
   processed_data <- reactive({

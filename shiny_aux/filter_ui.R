@@ -1,8 +1,38 @@
+# studyPeriodFilterUI <- function(id) {
+#   ns <- NS(id)
+#   tagList(
+#     h4("Study Period", style = "margin-bottom: 10px;"),
+#     # plotOutput(ns("period_hist"), height = "80px"),
+#     plotlyOutput(ns("period_hist"), height = "80px"),
+#
+#     uiOutput(ns("slider_ui")),
+#     tags$div(class = "filter-message", textOutput(ns("period_message")))
+#   )
+# }
+
+# studyPeriodFilterUI <- function(id) {
+#   ns <- NS(id)
+#   tagList(
+#     h4("Study Period", style = "margin-bottom: 10px;"),
+#
+#     # NEW WRAPPER — constrains width responsively
+#     div(
+#       style = "width: 100%; max-width: 260px; overflow: hidden;",
+#       plotlyOutput(ns("period_hist"), height = "80px")
+#     ),
+#
+#     uiOutput(ns("slider_ui")),
+#     tags$div(class = "filter-message", textOutput(ns("period_message")))
+#   )
+# }
 studyPeriodFilterUI <- function(id) {
   ns <- NS(id)
   tagList(
     h4("Study Period", style = "margin-bottom: 10px;"),
+
+    # ggplot histogram
     plotOutput(ns("period_hist"), height = "80px"),
+
     uiOutput(ns("slider_ui")),
     tags$div(class = "filter-message", textOutput(ns("period_message")))
   )
