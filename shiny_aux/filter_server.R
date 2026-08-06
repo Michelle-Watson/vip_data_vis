@@ -30,17 +30,17 @@ studyPeriodFilterServer <- function(id, char_data) {
         )
 
         ggplot(df, aes(x = year, y = count)) +
-          geom_col(fill = "#007bc2", width = 0.8) +
-          theme_minimal(base_size = 8) +
+          geom_col(fill = "#007bc2", width = 0.55) + # compressed bars
+          theme_void() + # removes background, axes, gridlines
           theme(
-            axis.title = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks.y = element_blank(),
-            panel.grid = element_blank(),
-            plot.margin = margin(2, 2, 2, 2)
+            plot.background = element_rect(fill = "transparent", color = NA),
+            panel.background = element_rect(fill = "transparent", color = NA),
+            # panel.grid.major.y = element_line(color = "grey90", size = 0.3),  # optional subtle gridlines
+            plot.margin = margin(0, 0, 0, 0)
           )
       },
-      height = 80
+      height = 80,
+      bg = "transparent"
     )
 
     # Dynamic message
