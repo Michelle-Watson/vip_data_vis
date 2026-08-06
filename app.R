@@ -8,7 +8,7 @@ library(DT)
 library(shinyjs)
 library(dplyr)
 library(writexl)
-library(plotly)
+library(ggplot2)
 
 
 source("shiny_aux/helpers.R")
@@ -199,7 +199,11 @@ server <- function(input, output, session) {
   })
 
   # ---- 4. Activate simple filters ----
-  simpleFiltersServer("simple_filters")
+  # simpleFiltersServer("simple_filters")
+  simpleFiltersServer(
+    "simple_filters",
+    reset_study_period = study_period_module$resetSlider
+  )
 
   # output$`simple_filters-study_period-period_hist` <- renderPlotly({
   #   df <- filtered_data()

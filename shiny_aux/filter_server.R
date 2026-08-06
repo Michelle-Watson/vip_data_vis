@@ -106,7 +106,10 @@ studyPeriodFilterServer <- function(id, char_data) {
     # return both the IDs and the setter
     list(
       ids = ids,
-      setFilteredData = setFilteredData
+      setFilteredData = setFilteredData,
+      resetSlider = function() {
+        updateSliderInput(session, "year_range", value = c(min_yr, max_yr))
+      }
     )
   })
 }
@@ -348,16 +351,11 @@ domainFilterServer <- function(id, outcomes_long) {
   })
 }
 
-simpleFiltersServer <- function(id) {
+simpleFiltersServer <- function(id, reset_study_period = NULL) {
   moduleServer(id, function(input, output, session) {
     # Observe the clear button click (id is "clear_simple" inside this module)
     observeEvent(input$clear_simple, {
       # Update each nested checkboxGroupInput to empty selection
-      updateSliderInput(
-        session,
-        "study_period-year_range",
-        value = c(min_study_year, max_study_year)
-      )
       updateCheckboxGroupInput(
         session,
         "age_group-ages",
@@ -388,6 +386,10 @@ simpleFiltersServer <- function(id) {
         "rob-rob_levels",
         selected = character(0)
       )
+      # Reset study period slider via its own reset function
+      if (!is.null(reset_study_period)) {
+        reset_study_period()
+      }
 
       # Show "Cleared!" message
       output$cleared_msg <- renderText("Cleared!")
