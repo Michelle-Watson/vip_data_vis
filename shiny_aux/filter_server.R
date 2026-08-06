@@ -51,14 +51,45 @@ studyPeriodFilterServer <- function(id, char_data) {
         hist_df <- as.data.frame(table(yrs))
         names(hist_df) <- c("year", "count")
 
-        ggplot(hist_df, aes(x = year, y = count)) +
+        # works x-axis, too many ticks
+
+        ggplot(hist_df, aes(x = factor(year), y = count)) +
           geom_col(fill = "#007bc2", width = 0.55) +
-          theme_void() +
+          scale_x_discrete(
+            breaks = sort(unique(hist_df$year)),
+            labels = sort(unique(hist_df$year))
+          ) +
+          theme_minimal(base_size = 9) +
           theme(
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_text(color = "#555"),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+
+            # ⭐ remove vertical gridlines
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank(),
+
+            # keep horizontal gridlines removed too
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+
             plot.background = element_rect(fill = "transparent", color = NA),
             panel.background = element_rect(fill = "transparent", color = NA),
             plot.margin = margin(0, 0, 0, 0)
           )
+
+        # works but no x-axis
+
+        # ggplot(hist_df, aes(x = year, y = count)) +
+        #   geom_col(fill = "#007bc2", width = 0.55) +
+        #   theme_void() +
+        #   theme(
+        #     plot.background = element_rect(fill = "transparent", color = NA),
+        #     panel.background = element_rect(fill = "transparent", color = NA),
+        #     plot.margin = margin(0, 0, 0, 0)
+        #   )
       },
       height = 80,
       bg = "transparent"
