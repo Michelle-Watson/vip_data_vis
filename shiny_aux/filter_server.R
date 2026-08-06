@@ -1,3 +1,73 @@
+studyPeriodFilterServer <- function(id, char_data) {
+  moduleServer(id, function(input, output, session) {
+    # Year range from the full dataset (static)
+    years <- as.integer(char_data$`Study Period Start`)
+    years <- years[!is.na(years)]
+    min_yr <- min(years)
+    max_yr <- max(years)
+
+    # Render slider
+    output$slider_ui <- renderUI({
+      sliderInput(
+        session$ns("year_range"),
+        label = NULL,
+        min = min_yr,
+        max = max_yr,
+        value = c(min_yr, max_yr),
+        step = 1,
+        sep = ""
+      )
+    })
+
+    # Mini histogram (full data)
+    output$period_hist <- renderPlot(
+      {
+        library(ggplot2)
+
+        df <- data.frame(
+          year = names(table(years)),
+          count = as.numeric(table(years))
+        )
+
+        ggplot(df, aes(x = year, y = count)) +
+          geom_col(fill = "#007bc2", width = 0.8) +
+          theme_minimal(base_size = 8) +
+          theme(
+            axis.title = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            panel.grid = element_blank(),
+            plot.margin = margin(2, 2, 2, 2)
+          )
+      },
+      height = 80
+    )
+
+    # Dynamic message
+    output$period_message <- renderText({
+      sel <- input$year_range
+      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
+        return("Showing all study periods")
+      }
+      paste("Showing studies with start year", sel[1], "to", sel[2])
+    })
+
+    # Filter logic
+    reactive({
+      sel <- input$year_range
+      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
+        return(unique(char_data$char_row_id))
+      }
+      char_data %>%
+        filter(
+          `Study Period Start` >= sel[1] & `Study Period Start` <= sel[2]
+        ) %>%
+        pull(char_row_id) %>%
+        unique()
+    })
+  })
+}
+
 # ---- Age Group filter server ----
 ageGroupFilterServer <- function(id, pop_long) {
   moduleServer(id, function(input, output, session) {
@@ -239,6 +309,11 @@ simpleFiltersServer <- function(id) {
     # Observe the clear button click (id is "clear_simple" inside this module)
     observeEvent(input$clear_simple, {
       # Update each nested checkboxGroupInput to empty selection
+      updateSliderInput(
+        session,
+        "study_period-year_range",
+        value = c(min_study_year, max_study_year)
+      )
       updateCheckboxGroupInput(
         session,
         "age_group-ages",

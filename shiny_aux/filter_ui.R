@@ -1,3 +1,13 @@
+studyPeriodFilterUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h4("Study Period", style = "margin-bottom: 10px;"),
+    plotOutput(ns("period_hist"), height = "80px"),
+    uiOutput(ns("slider_ui")),
+    tags$div(class = "filter-message", textOutput(ns("period_message")))
+  )
+}
+
 # ---- Simple Age Group filter (checkboxes) ----
 ageGroupFilterUI <- function(id) {
   ns <- NS(id)
@@ -129,15 +139,25 @@ simpleFiltersUI <- function(id) {
     conditionalPanel(
       condition = paste0("input['", ns("show_simple"), "'] == true"),
       wellPanel(
-        fluidRow(
-          class = "filter-row",
-          column(2, ageGroupFilterUI(ns("age_group"))),
-          column(2, popTypeFilterUI(ns("pop_type"))),
-          column(2, virusFilterUI(ns("virus"))),
-          column(2, studyDesignFilterUI(ns("study_design"))),
-          column(2, domainFilterUI(ns("domain"))),
-          column(2, robFilterUI(ns("rob")))
-        )
+        # filters on left side
+
+        ageGroupFilterUI(ns("age_group")),
+        popTypeFilterUI(ns("pop_type")),
+        virusFilterUI(ns("virus")),
+        studyPeriodFilterUI(ns("study_period")),
+        studyDesignFilterUI(ns("study_design")),
+        domainFilterUI(ns("domain")),
+        robFilterUI(ns("rob"))
+        # filters on TOP
+        # fluidRow(
+        #   class = "filter-row",
+        #   column(2, ageGroupFilterUI(ns("age_group"))),
+        #   column(2, popTypeFilterUI(ns("pop_type"))),
+        #   column(2, virusFilterUI(ns("virus"))),
+        #   column(2, studyDesignFilterUI(ns("study_design"))),
+        #   column(2, domainFilterUI(ns("domain"))),
+        #   column(2, robFilterUI(ns("rob")))
+        # )
       )
     )
   )
@@ -169,27 +189,40 @@ advancedFiltersUI <- function(id) {
           style = "font-size: 12px; color: #555; margin-bottom: 12px;",
           "Ignore = you don’t mind whether this group is present or not. A study with this tag will be shown as long as the other criteria are satisfied."
         ),
-        fluidRow(
-          class = "filter-row",
-          column(
-            6,
-            h4("Age Group (advanced)"),
-            uiOutput(ns("age_advanced")),
-            tags$div(
-              class = "filter-message",
-              textOutput(ns("age_adv_message"))
-            )
-          ),
-          column(
-            6,
-            h4("Population Type (advanced)"),
-            uiOutput(ns("pop_type_advanced")),
-            tags$div(
-              class = "filter-message",
-              textOutput(ns("pop_type_adv_message"))
-            )
-          )
+        # filters on left side
+        h4("Age Group (advanced)"),
+        uiOutput(ns("age_advanced")),
+        tags$div(class = "filter-message", textOutput(ns("age_adv_message"))),
+        br(),
+        h4("Population Type (advanced)"),
+        uiOutput(ns("pop_type_advanced")),
+        tags$div(
+          class = "filter-message",
+          textOutput(ns("pop_type_adv_message"))
         )
+
+        # filters on top
+        # fluidRow(
+        #   class = "filter-row",
+        #   column(
+        #     6,
+        #     h4("Age Group (advanced)"),
+        #     uiOutput(ns("age_advanced")),
+        #     tags$div(
+        #       class = "filter-message",
+        #       textOutput(ns("age_adv_message"))
+        #     )
+        #   ),
+        #   column(
+        #     6,
+        #     h4("Population Type (advanced)"),
+        #     uiOutput(ns("pop_type_advanced")),
+        #     tags$div(
+        #       class = "filter-message",
+        #       textOutput(ns("pop_type_adv_message"))
+        #     )
+        #   )
+        # )
       )
     )
   )

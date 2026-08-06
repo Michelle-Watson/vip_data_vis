@@ -20,6 +20,13 @@ source("shiny_aux/styles.R")
 # ---- Load data once (runs when the app starts) ----
 char_path <- "characteristics_tables/All_Study_Characteristics.xlsx"
 char_data <- read_excel(char_path, sheet = "Study Characteristics")
+
+# Extract numeric study period starts for slider bounds
+study_years <- as.integer(char_data$`Study Period Start`)
+study_years <- study_years[!is.na(study_years)]
+min_study_year <- min(study_years)
+max_study_year <- max(study_years)
+
 pop_long <- read_excel(char_path, sheet = "Population_Long")
 n_long <- read_excel(char_path, sheet = "N_Long")
 virus_long <- read_excel(char_path, sheet = "Virus_Long")
@@ -90,46 +97,44 @@ ui <- fluidPage(
     ),
     tabPanel(
       "Studies",
-
-      # Lightweight toggle
-      checkboxInput(
-        "lightweight",
-        "Lightweight view (hide article details)",
-        value = TRUE
-      ),
-
-      # ---- Simple filters (always visible) ----
-      # ageGroupFilterUI("age_group"),
-      # popTypeFilterUI("pop_type"),
-      # virusFilterUI("virus"),
-      # studyDesignFilterUI("study_design"),
-      # robFilterUI("rob"),
-
-      simpleFiltersUI("simple_filters"),
-
-      # ---- Advanced filters (collapsible) ----
-      advancedFiltersUI("advanced"),
-
-      div(
-        style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
-        downloadButton(
-          "downloadFull",
-          "Download Study Characteristics",
-          class = "btn-sm"
+      filterSidebarLayout(
+        sidebar_id = "studies_sidebar",
+        toggle_btn = FALSE,
+        sidebar_content = tagList(
+          checkboxInput(
+            "lightweight",
+            "Lightweight view (hide article details)",
+            value = TRUE
+          ),
+          simpleFiltersUI("simple_filters"),
+          advancedFiltersUI("advanced")
+        ),
+        main_content = tagList(
+          tags$div(
+            class = "filter-message",
+            style = "margin-bottom: 10px; font-size: 15px;",
+            textOutput("study_count")
+          ),
+          div(
+            style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
+            downloadButton(
+              "downloadFull",
+              "Download Study Characteristics",
+              class = "btn-sm"
+            )
+          ),
+          DTOutput("studies_table")
         )
-      ),
-      tags$div(
-        class = "filter-message",
-        style = "margin-bottom: 10px; font-size: 15px;",
-        textOutput("study_count")
-      ),
-      DTOutput("studies_table")
+      )
     )
   )
 )
 
 # ---- Server logic ----
 server <- function(input, output, session) {
+  observeEvent(input$toggle_studies_sidebar, {
+    shinyjs::toggle("studies_sidebar", anim = TRUE)
+  })
   # age_filter <- ageGroupFilterServer("age_group", pop_long)
   # pop_type_filter <- popTypeFilterServer("pop_type", pop_long)
   # virus_filter <- virusFilterServer("virus", virus_long)
@@ -145,11 +150,16 @@ server <- function(input, output, session) {
   )
   domain_filter <- domainFilterServer("simple_filters-domain", outcomes_long)
   rob_filter <- robFilterServer("simple_filters-rob", rob_long)
+  study_period_filter <- studyPeriodFilterServer(
+    "simple_filters-study_period",
+    char_data
+  )
   simpleFiltersServer("simple_filters")
 
   advanced_filter <- advancedFilterServer("advanced", pop_long)
 
   filtered_data <- reactive({
+    ids_period <- study_period_filter()
     ids_age <- age_filter()
     ids_type <- pop_type_filter()
     ids_virus <- virus_filter()
@@ -167,6 +177,7 @@ server <- function(input, output, session) {
         ids_design,
         ids_domain,
         ids_rob,
+        ids_period,
         ids_adv
       )
     )
@@ -256,6 +267,8 @@ server <- function(input, output, session) {
       escape = FALSE, # don't escape HTML chars
       filter = "none", # no column filters yet
       options = list(
+        # showing # of # + paginatoin at bottom. Top only has pagination
+        dom = "<'top' p> t <'bottom' i p>",
         pageLength = 50,
         scrollX = FALSE,
         autoWidth = FALSE,

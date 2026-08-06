@@ -16,6 +16,14 @@ filter_message_css <- "
 filter_message_css <- paste0(
   filter_message_css,
   '
+  /* Sidebar collapse */
+  #studies_layout.sidebar-hidden .col-sm-3 {
+    display: none !important;
+  }
+  #studies_layout.sidebar-hidden .col-sm-9 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
   .filter-row {
     display: flex;
     flex-wrap: wrap;

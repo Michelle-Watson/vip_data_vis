@@ -49,3 +49,34 @@ make_col_defs <- function(df, widths) {
     )
   })
 }
+
+
+# Reusable sidebar layout for filter + main content
+filterSidebarLayout <- function(
+  sidebar_content,
+  main_content,
+  sidebar_id,
+  toggle_btn = TRUE
+) {
+  sidebarLayout(
+    sidebarPanel(
+      id = sidebar_id,
+      width = 3,
+      sidebar_content
+    ),
+    mainPanel(
+      width = 9,
+      if (toggle_btn) {
+        tags$div(
+          style = "margin-bottom: 8px;",
+          actionButton(
+            inputId = paste0("toggle_", sidebar_id),
+            label = "☰ Show/Hide Filters",
+            class = "btn-sm"
+          )
+        )
+      },
+      main_content
+    )
+  )
+}
