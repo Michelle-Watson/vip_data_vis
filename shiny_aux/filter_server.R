@@ -385,6 +385,11 @@ simpleFiltersServer <- function(id, reset_study_period = NULL) {
         "rob-rob_levels",
         selected = character(0)
       )
+      updateCheckboxGroupInput(
+        session,
+        "type_of_outcome-types",
+        selected = character(0)
+      )
       # Reset study period slider via its own reset function
       if (!is.null(reset_study_period)) {
         reset_study_period()
@@ -401,9 +406,43 @@ simpleFiltersServer <- function(id, reset_study_period = NULL) {
   })
 }
 
+typeOfOutcomeFilterServer <- function(id, outcome_data, id_col = "row_id") {
+  moduleServer(id, function(input, output, session) {
+    output$type_of_outcome_message <- renderText({
+      selected <- input$types
+      if (is.null(selected) || length(selected) == 0) {
+        return("Showing all outcome types")
+      }
+      if (length(selected) == 1) {
+        paste("Showing", selected, "outcomes only")
+      } else if (length(selected) == 2) {
+        paste("Showing", selected[1], "or", selected[2], "outcomes")
+      } else {
+        paste(
+          "Showing",
+          paste(selected[-length(selected)], collapse = ", "),
+          "or",
+          selected[length(selected)],
+          "outcomes"
+        )
+      }
+    })
+
+    reactive({
+      selected <- input$types
+      if (is.null(selected) || length(selected) == 0) {
+        return(unique(outcome_data[[id_col]]))
+      }
+      outcome_data %>%
+        filter(`Type of Outcome` %in% selected) %>%
+        pull(!!sym(id_col)) %>%
+        unique()
+    })
+  })
+}
 
 # ---- Advanced filter server (currently only population tri‑state) ----
-advancedFilterServer <- function(id, pop_long) {
+advancedFilterServer <- function(id, pop_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     # Module-level code vectors
     age_codes <- c("OA", "A", "C", "I")
@@ -526,7 +565,6 @@ advancedFilterServer <- function(id, pop_long) {
 
     # ---- Reactive filter logic ----
     reactive({
-      # Use vapply to safely get states (default "ignore" if NULL)
       include_codes <- all_codes[vapply(
         all_codes,
         function(code) {
@@ -543,22 +581,22 @@ advancedFilterServer <- function(id, pop_long) {
       )]
 
       if (length(include_codes) == 0 && length(exclude_codes) == 0) {
-        return(unique(pop_long$char_row_id))
+        return(unique(pop_long[[id_col]]))
       }
 
       inc_ids <- if (length(include_codes) > 0) {
         pop_long %>%
           filter(`Population Code` %in% include_codes) %>%
-          pull(char_row_id) %>%
+          pull(!!sym(id_col)) %>%
           unique()
       } else {
-        unique(pop_long$char_row_id)
+        unique(pop_long[[id_col]])
       }
 
       exc_ids <- if (length(exclude_codes) > 0) {
         pop_long %>%
           filter(`Population Code` %in% exclude_codes) %>%
-          pull(char_row_id) %>%
+          pull(!!sym(id_col)) %>%
           unique()
       } else {
         integer(0)

@@ -4,13 +4,18 @@ outcome_always_hide <- c(
   "Covidence ID",
   "Minimum Age (days)",
   "Maximum Age (days)",
+  "Minimum Age",
+  "Maximum Age",
   "Point Estimate",
+  "Estimate Type",
   "CI Lower",
   "CI Upper",
   "Study Design Specifics",
   "Definition [of outcome]",
   "Notes 1",
-  "Notes 2"
+  "Notes 2",
+  "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS-I)",
+  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS-I)"
 )
 
 outcome_column_order <- c(
@@ -25,7 +30,8 @@ outcome_column_order <- c(
   "Age Range",
   "Minimum Age",
   "Maximum Age",
-  "Vaccine",
+  # "Vaccine",
+  "Comparison", # renamed
   "Outcome",
   "Intervention",
   "Vaccine Formulation for Intervention Arm",
@@ -43,9 +49,7 @@ outcome_column_order <- c(
   "Estimate Type",
   "Definition [of outcome]",
   "Factors Adjusted",
-  "Risk of Bias",
-  "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS-I)",
-  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS-I)"
+  "Risk of Bias"
 )
 
 outcome_desired_widths <- c(
@@ -54,7 +58,8 @@ outcome_desired_widths <- c(
   "Study Design" = 150,
   "Population" = 120,
   "Age Range" = 100,
-  "Vaccine" = 120,
+  # "Vaccine" = 120,
+  "Comparison" = 120, # ← renamed
   "Outcome" = 180,
   "Estimate (95% CI)" = 150,
   "Risk of Bias" = 120

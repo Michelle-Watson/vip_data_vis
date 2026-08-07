@@ -127,6 +127,14 @@ ui <- fluidPage(
             "Lightweight view (hide article details)",
             value = TRUE
           ),
+          div(
+            style = "margin-bottom: 8px;",
+            downloadButton(
+              "downloadFilteredStudies",
+              "Download filtered view",
+              class = "btn-sm"
+            )
+          ),
           simpleFiltersUI("simple_filters"),
           advancedFiltersUI("advanced")
         ),
@@ -155,7 +163,15 @@ ui <- fluidPage(
         sidebar_id = "outcomes_sidebar",
         toggle_btn = FALSE,
         sidebar_content = tagList(
-          simpleFiltersUI("outcome_simple_filters"),
+          div(
+            style = "margin-bottom: 8px;",
+            downloadButton(
+              "downloadFilteredOutcomes",
+              "Download filtered view",
+              class = "btn-sm"
+            )
+          ),
+          outcomeSimpleFiltersUI("outcome_simple_filters"),
           advancedFiltersUI("outcome_advanced")
         ),
         main_content = tagList(
@@ -382,6 +398,23 @@ server <- function(input, output, session) {
       file.copy(char_path, file)
     }
   )
+  output$downloadFilteredStudies <- downloadHandler(
+    filename = function() {
+      paste0("Filtered_Studies_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx")
+    },
+    content = function(file) {
+      wb_sheets <- readxl::excel_sheets(char_path)
+      all_data <- lapply(wb_sheets, function(s) {
+        read_excel(char_path, sheet = s)
+      })
+      names(all_data) <- wb_sheets
+
+      # Replace the main sheet with the filtered data (all columns)
+      all_data[["Study Characteristics"]] <- filtered_data()
+
+      writexl::write_xlsx(all_data, file)
+    }
+  )
 
   # ---- Outcomes tab ----
 
@@ -421,7 +454,17 @@ server <- function(input, output, session) {
     outcome_rob_long,
     id_col = "row_id"
   )
-  outcome_advanced_filter <- advancedFilterServer("outcome_advanced", pop_long)
+  outcome_advanced_filter <- advancedFilterServer(
+    "outcome_advanced",
+    outcome_pop_long, # outcomes Population_Long (loaded earlier)
+    id_col = "row_id"
+  )
+
+  outcome_type_of_outcome_filter <- typeOfOutcomeFilterServer(
+    "outcome_simple_filters-type_of_outcome",
+    outcome_data,
+    id_col = "row_id"
+  )
 
   # 3. Combine all filters to get a vector of allowed char_row_ids
   filtered_outcome_ids <- reactive({
@@ -431,15 +474,16 @@ server <- function(input, output, session) {
     ids_virus <- outcome_virus_filter()
     ids_domain <- outcome_domain_filter()
     ids_rob <- outcome_rob_filter()
+    ids_type_of_outcome <- outcome_type_of_outcome_filter()
+    ids_adv <- outcome_advanced_filter()
 
     # Filters that still return char_row_id
     ids_design <- outcome_design_filter()
     ids_period <- outcome_study_period$ids()
-    ids_adv <- outcome_advanced_filter()
 
-    # Convert char_row_id → row_id using the outcomes data
+    # Convert char_row_id -> row_id using the outcomes data
     char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
-    char_ids <- Reduce(intersect, list(ids_design, ids_period, ids_adv))
+    char_ids <- Reduce(intersect, list(ids_design, ids_period))
     char_row_ids <- char_to_row %>%
       filter(char_row_id %in% char_ids) %>%
       pull(row_id)
@@ -447,13 +491,28 @@ server <- function(input, output, session) {
     # Intersect all row_id‑based sets
     Reduce(
       intersect,
-      list(ids_age, ids_type, ids_virus, ids_domain, ids_rob, char_row_ids)
+      list(
+        ids_age,
+        ids_type,
+        ids_virus,
+        ids_type_of_outcome,
+        ids_domain,
+        ids_rob,
+        ids_adv,
+        char_row_ids
+      )
     )
   })
 
   # 4. Filter the outcomes data based on char_row_id
   filtered_outcome_data <- reactive({
     outcome_data %>% filter(row_id %in% filtered_outcome_ids())
+  })
+
+  # Temporary diagnostic – check whether the filtered data shrinks when filters are active
+  observe({
+    n <- nrow(filtered_outcome_data())
+    message("filtered_outcome_data rows: ", n)
   })
 
   # 5. Pass the filtered outcome data to the study‑period histogram
@@ -470,6 +529,9 @@ server <- function(input, output, session) {
 
     # Hide unwanted columns
     display <- drop_columns(display, outcome_always_hide)
+
+    # Rename Vaccine -> Comparison
+    names(display)[names(display) == "Vaccine"] <- "Comparison"
 
     # Reorder columns
     display <- display[,
@@ -524,7 +586,30 @@ server <- function(input, output, session) {
       write_xlsx(processed_outcome_data(), file)
     }
   )
+  output$downloadFilteredOutcomes <- downloadHandler(
+    filename = function() {
+      paste0("Filtered_Outcomes_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx")
+    },
+    content = function(file) {
+      # 1. Read the Footnotes sheet from the original workbook
+      footnotes_df <- read_excel(outcome_path, sheet = "Footnotes")
 
+      # 2. Get the filtered outcome data as a plain data frame
+      filt_df <- as.data.frame(
+        filtered_outcome_data(),
+        stringsAsFactors = FALSE
+      )
+
+      # 3. Build a workbook with ONLY the filtered sheet + Footnotes
+      out <- list(
+        `Filtered_Outcomes` = filt_df,
+        Footnotes = footnotes_df
+      )
+
+      # 4. Write the new workbook
+      writexl::write_xlsx(out, file)
+    }
+  )
   # 10. Clear‑all button for outcomes
   simpleFiltersServer(
     "outcome_simple_filters",

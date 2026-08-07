@@ -193,6 +193,62 @@ simpleFiltersUI <- function(id) {
   )
 }
 
+typeOfOutcomeFilterUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h4("Type of Outcome", style = "margin-bottom: 20px;"),
+    checkboxGroupInput(
+      ns("types"),
+      label = NULL,
+      choices = c(
+        "Adjusted Comparative" = "Adjusted Comparative",
+        "Unadjusted Comparative" = "Unadjusted Comparative",
+        "Single Arm" = "Single Arm",
+        "Ecological" = "Ecological"
+      ),
+      selected = NULL
+    ),
+    tags$div(
+      class = "filter-message",
+      textOutput(ns("type_of_outcome_message"))
+    )
+  )
+}
+
+
+outcomeSimpleFiltersUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    div(
+      style = "display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;",
+      checkboxInput(ns("show_simple"), "Show simple filters", value = TRUE),
+      div(
+        style = "display: flex; align-items: baseline; gap: 8px;",
+        actionLink(
+          ns("clear_simple"),
+          label = "Clear all simple filters\U1F9F9",
+          style = "color: #888; text-decoration: none; cursor: pointer;"
+        ),
+        textOutput(ns("cleared_msg"))
+      )
+    ),
+    conditionalPanel(
+      condition = paste0("input['", ns("show_simple"), "'] == true"),
+      wellPanel(
+        ageGroupFilterUI(ns("age_group")),
+        popTypeFilterUI(ns("pop_type")),
+        virusFilterUI(ns("virus")),
+        studyPeriodFilterUI(ns("study_period")),
+        studyDesignFilterUI(ns("study_design")),
+        typeOfOutcomeFilterUI(ns("type_of_outcome")), # ← new filter
+        domainFilterUI(ns("domain")),
+        robFilterUI(ns("rob"))
+      )
+    )
+  )
+}
+
+
 # wellpanel makes the bg grey
 
 # most recent, lets try this
