@@ -1,4 +1,4 @@
-studyPeriodFilterServer <- function(id, char_data) {
+studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
   moduleServer(id, function(input, output, session) {
     # placeholder for filtered_data
     filtered_data_reactive <- reactiveVal(NULL)
@@ -27,14 +27,14 @@ studyPeriodFilterServer <- function(id, char_data) {
 
     ids <- reactive({
       sel <- input$year_range
-      if (is.null(sel)) {
-        return(unique(char_data$char_row_id))
+      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
+        return(unique(all_ids %||% char_data$char_row_id))
       }
 
       char_data %>%
         filter(
-          `Study Period Start` >= sel[1],
-          `Study Period Start` <= sel[2]
+          is.na(`Study Period Start`) |
+            (`Study Period Start` >= sel[1] & `Study Period Start` <= sel[2])
         ) %>%
         pull(char_row_id) %>%
         unique()
@@ -116,7 +116,12 @@ studyPeriodFilterServer <- function(id, char_data) {
 
 
 # ---- Age Group filter server ----
-ageGroupFilterServer <- function(id, pop_long, id_col = "char_row_id") {
+ageGroupFilterServer <- function(
+  id,
+  pop_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     # Helper message
     output$age_message <- renderText({
@@ -151,7 +156,10 @@ ageGroupFilterServer <- function(id, pop_long, id_col = "char_row_id") {
     reactive({
       selected <- input$ages
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(pop_long[[id_col]]))
+        # return(unique(pop_long[[id_col]]))
+        # rows were being silently dropped because a field wasn't filled out
+        # Return the full set of IDs provided by the caller
+        return(all_ids %||% unique(pop_long[[id_col]]))
       }
       pop_long %>%
         filter(`Population Code` %in% selected) %>%
@@ -162,7 +170,12 @@ ageGroupFilterServer <- function(id, pop_long, id_col = "char_row_id") {
 }
 
 # ---- Population Type filter server ----
-popTypeFilterServer <- function(id, pop_long, id_col = "char_row_id") {
+popTypeFilterServer <- function(
+  id,
+  pop_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     # Helper message
     output$type_message <- renderText({
@@ -195,7 +208,10 @@ popTypeFilterServer <- function(id, pop_long, id_col = "char_row_id") {
     reactive({
       selected <- input$pop_types
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(pop_long[[id_col]]))
+        # return(unique(pop_long[[id_col]]))
+        # rows were being silently dropped because a field wasn't filled out
+        # Return the full set of IDs provided by the caller
+        return(all_ids %||% unique(pop_long[[id_col]]))
       }
       pop_long %>%
         filter(`Population Code` %in% selected) %>%
@@ -205,7 +221,12 @@ popTypeFilterServer <- function(id, pop_long, id_col = "char_row_id") {
   })
 }
 
-virusFilterServer <- function(id, virus_long, id_col = "char_row_id") {
+virusFilterServer <- function(
+  id,
+  virus_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     # Dynamic helper message
     output$virus_message <- renderText({
@@ -226,7 +247,10 @@ virusFilterServer <- function(id, virus_long, id_col = "char_row_id") {
     reactive({
       selected <- input$viruses
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(virus_long[[id_col]]))
+        # return(unique(virus_long[[id_col]]))
+        # rows were being silently dropped because a field wasn't filled out
+        # Return the full set of IDs provided by the caller
+        return(all_ids %||% unique(virus_long[[id_col]]))
       }
       virus_long %>%
         filter(Virus %in% selected) %>%
@@ -236,7 +260,7 @@ virusFilterServer <- function(id, virus_long, id_col = "char_row_id") {
   })
 }
 
-studyDesignFilterServer <- function(id, char_data) {
+studyDesignFilterServer <- function(id, char_data, all_ids = NULL) {
   moduleServer(id, function(input, output, session) {
     # Dynamic helper message
     output$design_message <- renderText({
@@ -257,7 +281,9 @@ studyDesignFilterServer <- function(id, char_data) {
     reactive({
       selected <- input$designs
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(char_data$char_row_id))
+        return(all_ids %||% unique(char_data$char_row_id))
+        # rows were being silently dropped because a field wasn't filled out
+        # Return the full set of IDs provided by the caller
       }
       char_data %>%
         filter(`Study Design` %in% selected) %>%
@@ -267,7 +293,12 @@ studyDesignFilterServer <- function(id, char_data) {
   })
 }
 
-robFilterServer <- function(id, rob_long, id_col = "char_row_id") {
+robFilterServer <- function(
+  id,
+  rob_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     # Mapping from simplified categories to original Overall Risk values
     category_map <- list(
@@ -305,7 +336,7 @@ robFilterServer <- function(id, rob_long, id_col = "char_row_id") {
     reactive({
       selected <- input$rob_levels
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(rob_long[[id_col]]))
+        return(all_ids %||% unique(rob_long[[id_col]]))
       }
       original_risks <- unlist(category_map[selected])
       rob_long %>%
@@ -316,7 +347,12 @@ robFilterServer <- function(id, rob_long, id_col = "char_row_id") {
   })
 }
 
-domainFilterServer <- function(id, domain_long, id_col = "char_row_id") {
+domainFilterServer <- function(
+  id,
+  domain_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     output$domain_message <- renderText({
       selected <- input$domains
@@ -340,7 +376,7 @@ domainFilterServer <- function(id, domain_long, id_col = "char_row_id") {
     reactive({
       selected <- input$domains
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(domain_long[[id_col]]))
+        return(all_ids %||% unique(domain_long[[id_col]]))
       }
       domain_long %>%
         filter(Domain %in% selected) %>%
@@ -406,7 +442,12 @@ simpleFiltersServer <- function(id, reset_study_period = NULL) {
   })
 }
 
-typeOfOutcomeFilterServer <- function(id, outcome_data, id_col = "row_id") {
+typeOfOutcomeFilterServer <- function(
+  id,
+  outcome_data,
+  id_col = "row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     output$type_of_outcome_message <- renderText({
       selected <- input$types
@@ -431,7 +472,7 @@ typeOfOutcomeFilterServer <- function(id, outcome_data, id_col = "row_id") {
     reactive({
       selected <- input$types
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(outcome_data[[id_col]]))
+        return(all_ids %||% unique(outcome_data[[id_col]]))
       }
       outcome_data %>%
         filter(`Type of Outcome` %in% selected) %>%
@@ -442,7 +483,12 @@ typeOfOutcomeFilterServer <- function(id, outcome_data, id_col = "row_id") {
 }
 
 # ---- Advanced filter server (currently only population tri‑state) ----
-advancedFilterServer <- function(id, pop_long, id_col = "char_row_id") {
+advancedFilterServer <- function(
+  id,
+  pop_long,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
     # Module-level code vectors
     age_codes <- c("OA", "A", "C", "I")
@@ -581,7 +627,7 @@ advancedFilterServer <- function(id, pop_long, id_col = "char_row_id") {
       )]
 
       if (length(include_codes) == 0 && length(exclude_codes) == 0) {
-        return(unique(pop_long[[id_col]]))
+        return(all_ids %||% unique(pop_long[[id_col]]))
       }
 
       inc_ids <- if (length(include_codes) > 0) {

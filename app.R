@@ -9,6 +9,7 @@ library(shinyjs)
 library(dplyr)
 library(writexl)
 library(ggplot2)
+library(rlang)
 
 
 source("shiny_aux/helpers.R")
@@ -23,6 +24,7 @@ source("shiny_aux/styles.R")
 # ---- Load data once (runs when the app starts) ----
 char_path <- "characteristics_tables/All_Study_Characteristics.xlsx"
 char_data <- read_excel(char_path, sheet = "Study Characteristics")
+all_char_ids <- unique(char_data$char_row_id)
 
 # Extract numeric study period starts for slider bounds
 study_years <- as.integer(char_data$`Study Period Start`)
@@ -40,6 +42,7 @@ rob_long <- read_excel(char_path, sheet = "RoB_Long")
 outcome_path <- "outcome_tables/All_Tables_split.xlsx"
 # outcome_data <- read_excel(outcome_path, sheet = "All")
 outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
+all_outcome_ids <- unique(outcome_data$row_id)
 
 outcome_pop_long <- read_excel(outcome_path, sheet = "Population_Long")
 outcome_virus_long <- read_excel(outcome_path, sheet = "Virus_Long")
@@ -207,16 +210,41 @@ server <- function(input, output, session) {
   # rob_filter <- robFilterServer("rob", rob_long)
 
   # ---- 1. Create all filters EXCEPT study period ----
-  age_filter <- ageGroupFilterServer("simple_filters-age_group", pop_long)
-  pop_type_filter <- popTypeFilterServer("simple_filters-pop_type", pop_long)
-  virus_filter <- virusFilterServer("simple_filters-virus", virus_long)
+  age_filter <- ageGroupFilterServer(
+    "simple_filters-age_group",
+    pop_long,
+    all_ids = all_char_ids
+  )
+  pop_type_filter <- popTypeFilterServer(
+    "simple_filters-pop_type",
+    pop_long,
+    all_ids = all_char_ids
+  )
+  virus_filter <- virusFilterServer(
+    "simple_filters-virus",
+    virus_long,
+    all_ids = all_char_ids
+  )
   study_design_filter <- studyDesignFilterServer(
     "simple_filters-study_design",
-    char_data
+    char_data,
+    all_ids = all_char_ids
   )
-  domain_filter <- domainFilterServer("simple_filters-domain", outcomes_long)
-  rob_filter <- robFilterServer("simple_filters-rob", rob_long)
-  advanced_filter <- advancedFilterServer("advanced", pop_long)
+  domain_filter <- domainFilterServer(
+    "simple_filters-domain",
+    outcomes_long,
+    all_ids = all_char_ids
+  )
+  rob_filter <- robFilterServer(
+    "simple_filters-rob",
+    rob_long,
+    all_ids = all_char_ids
+  )
+  advanced_filter <- advancedFilterServer(
+    "advanced",
+    pop_long,
+    all_ids = all_char_ids
+  )
 
   # ---- 2. Create the study period module (NO filtered_data yet) ----
   # study_period_filter <- studyPeriodFilterServer(
@@ -225,7 +253,8 @@ server <- function(input, output, session) {
   # )
   study_period_module <- studyPeriodFilterServer(
     "simple_filters-study_period",
-    char_data
+    char_data,
+    all_ids = all_char_ids
   )
 
   # ---- 3. Now define filtered_data (safe because study_period_filter exists) ----
@@ -254,11 +283,41 @@ server <- function(input, output, session) {
       )
     )
 
+    message("--- Study filter diagnostics ---")
+    message("  age:        ", length(ids_age))
+    message("  type:       ", length(ids_type))
+    message("  virus:      ", length(ids_virus))
+    message("  design:     ", length(ids_design))
+    message("  domain:     ", length(ids_domain))
+    message("  rob:        ", length(ids_rob))
+    message("  period:     ", length(ids_period))
+    message("  advanced:   ", length(ids_adv))
+    message("  all studies:", length(all_char_ids))
+
+    # ---- temporary diagnostic: find dropped IDs ----
+    all_ids <- char_data$char_row_id # everyone
+    dropped_ids <- setdiff(all_ids, keep_ids)
+    if (length(dropped_ids) > 0) {
+      message("Studies dropped by filters: ", length(dropped_ids))
+      message(
+        "Dropped char_row_id: ",
+        paste(sort(dropped_ids), collapse = ", ")
+      )
+    } else {
+      message("No studies dropped by filters")
+    }
+    # ---- end diagnostic ----
+
     char_data %>% filter(char_row_id %in% keep_ids)
   })
 
   observe({
     study_period_module$setFilteredData(filtered_data())
+  })
+
+  observe({
+    n <- nrow(filtered_data())
+    message("filtered_data rows: ", n)
   })
 
   # ---- 4. Activate simple filters ----
@@ -421,49 +480,58 @@ server <- function(input, output, session) {
   # 1. Create a separate study‑period filter for outcomes
   outcome_study_period <- studyPeriodFilterServer(
     "outcome_simple_filters-study_period",
-    char_data # we still filter by study start years from the characteristics
+    char_data,
+    all_ids = all_outcome_ids # we still filter by study start years from the characteristics
   )
 
   # 2. Instantiate all other filters for outcomes (use the SAME filter functions)
   outcome_age_filter <- ageGroupFilterServer(
     "outcome_simple_filters-age_group",
     outcome_pop_long, # <-- use outcomes Population_Long
-    id_col = "row_id" # <-- filter by outcome row ID
+    id_col = "row_id",
+    all_ids = all_outcome_ids # <-- filter by outcome row ID
   )
   outcome_type_filter <- popTypeFilterServer(
     "outcome_simple_filters-pop_type",
     outcome_pop_long, # <-- same outcomes Population_Long
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
   outcome_virus_filter <- virusFilterServer(
     "outcome_simple_filters-virus",
     outcome_virus_long,
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
   outcome_design_filter <- studyDesignFilterServer(
     "outcome_simple_filters-study_design",
-    char_data
+    char_data,
+    all_ids = all_outcome_ids
   )
   outcome_domain_filter <- domainFilterServer(
     "outcome_simple_filters-domain",
     outcome_domain_long,
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
   outcome_rob_filter <- robFilterServer(
     "outcome_simple_filters-rob",
     outcome_rob_long,
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
   outcome_advanced_filter <- advancedFilterServer(
     "outcome_advanced",
     outcome_pop_long, # outcomes Population_Long (loaded earlier)
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
 
   outcome_type_of_outcome_filter <- typeOfOutcomeFilterServer(
     "outcome_simple_filters-type_of_outcome",
     outcome_data,
-    id_col = "row_id"
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
 
   # 3. Combine all filters to get a vector of allowed char_row_ids
@@ -481,15 +549,15 @@ server <- function(input, output, session) {
     ids_design <- outcome_design_filter()
     ids_period <- outcome_study_period$ids()
 
-    # Convert char_row_id -> row_id using the outcomes data
+    # Convert char_row_id → row_id
     char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
     char_ids <- Reduce(intersect, list(ids_design, ids_period))
     char_row_ids <- char_to_row %>%
       filter(char_row_id %in% char_ids) %>%
       pull(row_id)
 
-    # Intersect all row_id‑based sets
-    Reduce(
+    # Final intersection
+    result_ids <- Reduce(
       intersect,
       list(
         ids_age,
@@ -502,6 +570,38 @@ server <- function(input, output, session) {
         char_row_ids
       )
     )
+
+    # Diagnostics – print to console
+    message("--- Outcome filter diagnostics ---")
+    message("  age:        ", length(ids_age))
+    message("  type:       ", length(ids_type))
+    message("  virus:      ", length(ids_virus))
+    message("  design:     ", length(ids_design))
+    message("  type_of_outcome: ", length(ids_type_of_outcome))
+    message("  domain:     ", length(ids_domain))
+    message("  rob:        ", length(ids_rob))
+    message("  period:     ", length(ids_period))
+    message("  advanced:   ", length(ids_adv))
+    message("  char_row_ids: ", length(char_row_ids))
+    message("  final intersection: ", length(result_ids))
+
+    # Temporary diagnostic – find dropped outcome rows
+    all_ids_out <- all_outcome_ids
+    dropped_out <- setdiff(all_ids_out, result_ids)
+    if (length(dropped_out) > 0) {
+      message("Outcomes dropped by filters: ", length(dropped_out))
+      dropped_info <- outcome_data %>%
+        filter(row_id %in% dropped_out) %>%
+        distinct(row_id, char_row_id, `Study Label`) %>%
+        arrange(row_id)
+      print(as.data.frame(dropped_info), max = 200)
+    } else {
+      message("No outcomes dropped by filters")
+    }
+    # ---- end outcome diagnostic ----
+
+    # Explicit return
+    result_ids
   })
 
   # 4. Filter the outcomes data based on char_row_id
