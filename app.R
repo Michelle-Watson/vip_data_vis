@@ -24,10 +24,6 @@ source("shiny_aux/styles.R")
 char_path <- "characteristics_tables/All_Study_Characteristics.xlsx"
 char_data <- read_excel(char_path, sheet = "Study Characteristics")
 
-outcome_path <- "outcome_tables/All_Tables_split.xlsx"
-# outcome_data <- read_excel(outcome_path, sheet = "All")
-outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
-
 # Extract numeric study period starts for slider bounds
 study_years <- as.integer(char_data$`Study Period Start`)
 study_years <- study_years[!is.na(study_years)]
@@ -39,6 +35,13 @@ n_long <- read_excel(char_path, sheet = "N_Long")
 virus_long <- read_excel(char_path, sheet = "Virus_Long")
 outcomes_long <- read_excel(char_path, sheet = "Outcomes_Long")
 rob_long <- read_excel(char_path, sheet = "RoB_Long")
+
+
+outcome_path <- "outcome_tables/All_Tables_split.xlsx"
+# outcome_data <- read_excel(outcome_path, sheet = "All")
+outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
+
+outcome_pop_long <- read_excel(outcome_path, sheet = "Population_Long")
 
 
 # ---- User Interface ----
@@ -350,8 +353,8 @@ server <- function(input, output, session) {
       escape = FALSE, # don't escape HTML chars
       filter = "none", # no column filters yet
       options = list(
-        # showing # of # + paginatoin at bottom. Top only has pagination
-        dom = "<'top' p> t <'bottom' i p>",
+        # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
+        dom = "<'top' p f> t <'bottom' i p>",
         pageLength = 50,
         scrollX = FALSE,
         autoWidth = FALSE,
@@ -380,11 +383,13 @@ server <- function(input, output, session) {
   # 2. Instantiate all other filters for outcomes (use the SAME filter functions)
   outcome_age_filter <- ageGroupFilterServer(
     "outcome_simple_filters-age_group",
-    pop_long
+    outcome_pop_long, # <-- use outcomes Population_Long
+    id_col = "row_id" # <-- filter by outcome row ID
   )
   outcome_type_filter <- popTypeFilterServer(
     "outcome_simple_filters-pop_type",
-    pop_long
+    outcome_pop_long, # <-- same outcomes Population_Long
+    id_col = "row_id"
   )
   outcome_virus_filter <- virusFilterServer(
     "outcome_simple_filters-virus",
@@ -403,33 +408,34 @@ server <- function(input, output, session) {
 
   # 3. Combine all filters to get a vector of allowed char_row_ids
   filtered_outcome_ids <- reactive({
-    ids_period <- outcome_study_period$ids()
-    ids_age <- outcome_age_filter()
-    ids_type <- outcome_type_filter()
-    ids_virus <- outcome_virus_filter()
-    ids_design <- outcome_design_filter()
-    ids_domain <- outcome_domain_filter()
-    ids_rob <- outcome_rob_filter()
-    ids_adv <- outcome_advanced_filter()
+    ids_period <- outcome_study_period$ids() # still char_row_id
+    ids_age <- outcome_age_filter() # now row_id
+    ids_type <- outcome_type_filter() # now row_id
+    ids_virus <- outcome_virus_filter() # still char_row_id (for now)
+    ids_design <- outcome_design_filter() # still char_row_id
+    ids_domain <- outcome_domain_filter() # still char_row_id
+    ids_rob <- outcome_rob_filter() # still char_row_id
+    ids_adv <- outcome_advanced_filter() # still char_row_id
 
-    Reduce(
+    # For filters that return char_row_id, convert to row_ids
+    char_to_row <- outcome_data %>%
+      distinct(char_row_id, row_id)
+
+    char_ids <- Reduce(
       intersect,
-      list(
-        ids_age,
-        ids_type,
-        ids_virus,
-        ids_design,
-        ids_domain,
-        ids_rob,
-        ids_period,
-        ids_adv
-      )
+      list(ids_virus, ids_design, ids_domain, ids_rob, ids_period, ids_adv)
     )
+    char_row_ids <- char_to_row %>%
+      filter(char_row_id %in% char_ids) %>%
+      pull(row_id)
+
+    # Intersect the row_id‑based filters with the converted ones
+    Reduce(intersect, list(ids_age, ids_type, char_row_ids))
   })
 
   # 4. Filter the outcomes data based on char_row_id
   filtered_outcome_data <- reactive({
-    outcome_data %>% filter(char_row_id %in% filtered_outcome_ids())
+    outcome_data %>% filter(row_id %in% filtered_outcome_ids())
   })
 
   # 5. Pass the filtered outcome data to the study‑period histogram
@@ -482,7 +488,9 @@ server <- function(input, output, session) {
       escape = FALSE,
       filter = "none",
       options = list(
-        dom = "<'top' p> t <'bottom' i p>",
+        # dom = "<'top' p> t <'bottom' i p>",
+        # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
+        dom = "<'top' p f> t <'bottom' i p>",
         pageLength = 25,
         scrollX = FALSE,
         autoWidth = FALSE,

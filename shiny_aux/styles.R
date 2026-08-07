@@ -35,5 +35,10 @@ filter_message_css <- paste0(
   .filter-row .filter-message {
     margin-top: auto;
   }
+  .dataTables_wrapper .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   '
 )

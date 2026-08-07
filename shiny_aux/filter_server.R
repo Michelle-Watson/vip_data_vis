@@ -116,7 +116,7 @@ studyPeriodFilterServer <- function(id, char_data) {
 
 
 # ---- Age Group filter server ----
-ageGroupFilterServer <- function(id, pop_long) {
+ageGroupFilterServer <- function(id, pop_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     # Helper message
     output$age_message <- renderText({
@@ -147,22 +147,22 @@ ageGroupFilterServer <- function(id, pop_long) {
       }
     })
 
-    # Filter logic (unchanged)
+    # Filter logic, uses id_col -> variable with a string.either uses char_row_id (char based) or row_id (outcomes based)
     reactive({
       selected <- input$ages
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(pop_long$char_row_id))
+        return(unique(pop_long[[id_col]]))
       }
       pop_long %>%
         filter(`Population Code` %in% selected) %>%
-        pull(char_row_id) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
   })
 }
 
 # ---- Population Type filter server ----
-popTypeFilterServer <- function(id, pop_long) {
+popTypeFilterServer <- function(id, pop_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     # Helper message
     output$type_message <- renderText({
@@ -191,15 +191,15 @@ popTypeFilterServer <- function(id, pop_long) {
       }
     })
 
-    # Filter logic (unchanged)
+    # Filter logic
     reactive({
       selected <- input$pop_types
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(pop_long$char_row_id))
+        return(unique(pop_long[[id_col]]))
       }
       pop_long %>%
         filter(`Population Code` %in% selected) %>%
-        pull(char_row_id) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
   })
