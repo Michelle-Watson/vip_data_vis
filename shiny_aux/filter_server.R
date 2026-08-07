@@ -205,7 +205,7 @@ popTypeFilterServer <- function(id, pop_long, id_col = "char_row_id") {
   })
 }
 
-virusFilterServer <- function(id, virus_long) {
+virusFilterServer <- function(id, virus_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     # Dynamic helper message
     output$virus_message <- renderText({
@@ -226,11 +226,11 @@ virusFilterServer <- function(id, virus_long) {
     reactive({
       selected <- input$viruses
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(virus_long$char_row_id))
+        return(unique(virus_long[[id_col]]))
       }
       virus_long %>%
         filter(Virus %in% selected) %>%
-        pull(char_row_id) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
   })
@@ -267,7 +267,7 @@ studyDesignFilterServer <- function(id, char_data) {
   })
 }
 
-robFilterServer <- function(id, rob_long) {
+robFilterServer <- function(id, rob_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     # Mapping from simplified categories to original Overall Risk values
     category_map <- list(
@@ -305,19 +305,18 @@ robFilterServer <- function(id, rob_long) {
     reactive({
       selected <- input$rob_levels
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(rob_long$char_row_id))
+        return(unique(rob_long[[id_col]]))
       }
-      # Convert selected simplified categories to original Overall Risk values
       original_risks <- unlist(category_map[selected])
       rob_long %>%
         filter(`Overall Risk` %in% original_risks) %>%
-        pull(char_row_id) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
   })
 }
 
-domainFilterServer <- function(id, outcomes_long) {
+domainFilterServer <- function(id, domain_long, id_col = "char_row_id") {
   moduleServer(id, function(input, output, session) {
     output$domain_message <- renderText({
       selected <- input$domains
@@ -341,11 +340,11 @@ domainFilterServer <- function(id, outcomes_long) {
     reactive({
       selected <- input$domains
       if (is.null(selected) || length(selected) == 0) {
-        return(unique(outcomes_long$char_row_id))
+        return(unique(domain_long[[id_col]]))
       }
-      outcomes_long %>%
+      domain_long %>%
         filter(Domain %in% selected) %>%
-        pull(char_row_id) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
   })

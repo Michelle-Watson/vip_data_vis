@@ -42,6 +42,8 @@ outcome_path <- "outcome_tables/All_Tables_split.xlsx"
 outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
 
 outcome_pop_long <- read_excel(outcome_path, sheet = "Population_Long")
+outcome_virus_long <- read_excel(outcome_path, sheet = "Virus_Long")
+outcome_rob_long <- read_excel(outcome_path, sheet = "RoB_Long")
 
 
 # ---- User Interface ----
