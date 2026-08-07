@@ -43,7 +43,16 @@ outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
 
 outcome_pop_long <- read_excel(outcome_path, sheet = "Population_Long")
 outcome_virus_long <- read_excel(outcome_path, sheet = "Virus_Long")
-outcome_rob_long <- read_excel(outcome_path, sheet = "RoB_Long")
+
+# Domain mapping for outcomes. Each outcome row has exactly one domain
+# It's already in the main sheet, but need a long sheet since the domain function expects a long sheet. Just adding this so the code can be reused. Revisit later since this is unnecessary overall
+outcome_domain_long <- outcome_data %>%
+  select(row_id, Domain)
+
+# Build risk-of-bias mapping for outcomes – one rating per outcome row
+outcome_rob_long <- outcome_data %>%
+  select(row_id, `Risk of Bias`) %>%
+  rename(`Overall Risk` = `Risk of Bias`)
 
 
 # ---- User Interface ----
@@ -395,7 +404,8 @@ server <- function(input, output, session) {
   )
   outcome_virus_filter <- virusFilterServer(
     "outcome_simple_filters-virus",
-    virus_long
+    outcome_virus_long,
+    id_col = "row_id"
   )
   outcome_design_filter <- studyDesignFilterServer(
     "outcome_simple_filters-study_design",
@@ -403,36 +413,42 @@ server <- function(input, output, session) {
   )
   outcome_domain_filter <- domainFilterServer(
     "outcome_simple_filters-domain",
-    outcomes_long
+    outcome_domain_long,
+    id_col = "row_id"
   )
-  outcome_rob_filter <- robFilterServer("outcome_simple_filters-rob", rob_long)
+  outcome_rob_filter <- robFilterServer(
+    "outcome_simple_filters-rob",
+    outcome_rob_long,
+    id_col = "row_id"
+  )
   outcome_advanced_filter <- advancedFilterServer("outcome_advanced", pop_long)
 
   # 3. Combine all filters to get a vector of allowed char_row_ids
   filtered_outcome_ids <- reactive({
-    ids_period <- outcome_study_period$ids() # still char_row_id
-    ids_age <- outcome_age_filter() # now row_id
-    ids_type <- outcome_type_filter() # now row_id
-    ids_virus <- outcome_virus_filter() # still char_row_id (for now)
-    ids_design <- outcome_design_filter() # still char_row_id
-    ids_domain <- outcome_domain_filter() # still char_row_id
-    ids_rob <- outcome_rob_filter() # still char_row_id
-    ids_adv <- outcome_advanced_filter() # still char_row_id
+    # Filters that return row_id
+    ids_age <- outcome_age_filter()
+    ids_type <- outcome_type_filter()
+    ids_virus <- outcome_virus_filter()
+    ids_domain <- outcome_domain_filter()
+    ids_rob <- outcome_rob_filter()
 
-    # For filters that return char_row_id, convert to row_ids
-    char_to_row <- outcome_data %>%
-      distinct(char_row_id, row_id)
+    # Filters that still return char_row_id
+    ids_design <- outcome_design_filter()
+    ids_period <- outcome_study_period$ids()
+    ids_adv <- outcome_advanced_filter()
 
-    char_ids <- Reduce(
-      intersect,
-      list(ids_virus, ids_design, ids_domain, ids_rob, ids_period, ids_adv)
-    )
+    # Convert char_row_id → row_id using the outcomes data
+    char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
+    char_ids <- Reduce(intersect, list(ids_design, ids_period, ids_adv))
     char_row_ids <- char_to_row %>%
       filter(char_row_id %in% char_ids) %>%
       pull(row_id)
 
-    # Intersect the row_id‑based filters with the converted ones
-    Reduce(intersect, list(ids_age, ids_type, char_row_ids))
+    # Intersect all row_id‑based sets
+    Reduce(
+      intersect,
+      list(ids_age, ids_type, ids_virus, ids_domain, ids_rob, char_row_ids)
+    )
   })
 
   # 4. Filter the outcomes data based on char_row_id
