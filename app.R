@@ -13,6 +13,7 @@ library(ggplot2)
 
 source("shiny_aux/helpers.R")
 source("shiny_aux/config.R")
+source("shiny_aux/outcome_config.R")
 
 source("shiny_aux/filter_ui.R")
 source("shiny_aux/filter_server.R")
@@ -22,6 +23,10 @@ source("shiny_aux/styles.R")
 # ---- Load data once (runs when the app starts) ----
 char_path <- "characteristics_tables/All_Study_Characteristics.xlsx"
 char_data <- read_excel(char_path, sheet = "Study Characteristics")
+
+outcome_path <- "outcome_tables/All_Tables_split.xlsx"
+# outcome_data <- read_excel(outcome_path, sheet = "All")
+outcome_data <- read_excel(outcome_path, sheet = "All", col_types = "text")
 
 # Extract numeric study period starts for slider bounds
 study_years <- as.integer(char_data$`Study Period Start`)
@@ -126,6 +131,34 @@ ui <- fluidPage(
             )
           ),
           DTOutput("studies_table")
+        )
+      )
+    ),
+
+    tabPanel(
+      "Outcomes",
+      filterSidebarLayout(
+        sidebar_id = "outcomes_sidebar",
+        toggle_btn = FALSE,
+        sidebar_content = tagList(
+          simpleFiltersUI("outcome_simple_filters"),
+          advancedFiltersUI("outcome_advanced")
+        ),
+        main_content = tagList(
+          tags$div(
+            class = "filter-message",
+            style = "margin-bottom: 10px; font-size: 15px;",
+            textOutput("outcome_count")
+          ),
+          div(
+            style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
+            downloadButton(
+              "downloadOutcomes",
+              "Download Outcomes",
+              class = "btn-sm"
+            )
+          ),
+          DTOutput("outcomes_table")
         )
       )
     )
@@ -313,7 +346,6 @@ server <- function(input, output, session) {
     # --- datatable ---
     datatable(
       display,
-      # server = FALSE   # set to TRUE when you have >1000 rows
       rownames = FALSE,
       escape = FALSE, # don't escape HTML chars
       filter = "none", # no column filters yet
@@ -335,6 +367,142 @@ server <- function(input, output, session) {
     content = function(file) {
       file.copy(char_path, file)
     }
+  )
+
+  # ---- Outcomes tab ----
+
+  # 1. Create a separate study‑period filter for outcomes
+  outcome_study_period <- studyPeriodFilterServer(
+    "outcome_simple_filters-study_period",
+    char_data # we still filter by study start years from the characteristics
+  )
+
+  # 2. Instantiate all other filters for outcomes (use the SAME filter functions)
+  outcome_age_filter <- ageGroupFilterServer(
+    "outcome_simple_filters-age_group",
+    pop_long
+  )
+  outcome_type_filter <- popTypeFilterServer(
+    "outcome_simple_filters-pop_type",
+    pop_long
+  )
+  outcome_virus_filter <- virusFilterServer(
+    "outcome_simple_filters-virus",
+    virus_long
+  )
+  outcome_design_filter <- studyDesignFilterServer(
+    "outcome_simple_filters-study_design",
+    char_data
+  )
+  outcome_domain_filter <- domainFilterServer(
+    "outcome_simple_filters-domain",
+    outcomes_long
+  )
+  outcome_rob_filter <- robFilterServer("outcome_simple_filters-rob", rob_long)
+  outcome_advanced_filter <- advancedFilterServer("outcome_advanced", pop_long)
+
+  # 3. Combine all filters to get a vector of allowed char_row_ids
+  filtered_outcome_ids <- reactive({
+    ids_period <- outcome_study_period$ids()
+    ids_age <- outcome_age_filter()
+    ids_type <- outcome_type_filter()
+    ids_virus <- outcome_virus_filter()
+    ids_design <- outcome_design_filter()
+    ids_domain <- outcome_domain_filter()
+    ids_rob <- outcome_rob_filter()
+    ids_adv <- outcome_advanced_filter()
+
+    Reduce(
+      intersect,
+      list(
+        ids_age,
+        ids_type,
+        ids_virus,
+        ids_design,
+        ids_domain,
+        ids_rob,
+        ids_period,
+        ids_adv
+      )
+    )
+  })
+
+  # 4. Filter the outcomes data based on char_row_id
+  filtered_outcome_data <- reactive({
+    outcome_data %>% filter(char_row_id %in% filtered_outcome_ids())
+  })
+
+  # 5. Pass the filtered outcome data to the study‑period histogram
+  observe({
+    outcome_study_period$setFilteredData(
+      # histogram still shows distribution of study start years
+      char_data %>% filter(char_row_id %in% filtered_outcome_ids())
+    )
+  })
+
+  # 6. Process the outcome table (plain study labels, column hiding, sorting)
+  processed_outcome_data <- reactive({
+    display <- filtered_outcome_data()
+
+    # Hide unwanted columns
+    display <- drop_columns(display, outcome_always_hide)
+
+    # Reorder columns
+    display <- display[,
+      intersect(outcome_column_order, names(display)),
+      drop = FALSE
+    ]
+
+    # Sort alphabetically by Study Label
+    display <- display %>% arrange(`Study Label`)
+    display
+  })
+
+  # 7. Row count text
+  output$outcome_count <- renderText({
+    n <- nrow(processed_outcome_data())
+    if (n == 0) {
+      return("No outcome rows match the current filters")
+    }
+    paste("Showing", n, "outcome rows")
+  })
+
+  # 8. Render the outcomes table
+  # server = TRUE, # large dataset – server‑side processing
+  output$outcomes_table <- renderDT(server = TRUE, {
+    display <- processed_outcome_data()
+    col_defs <- make_col_defs(display, outcome_desired_widths)
+
+    # Add sorting helper for Estimate (95% CI) via hidden numeric columns if present
+    # For now we skip extra sorting helpers – you can add them later if needed.
+
+    datatable(
+      display,
+      rownames = FALSE,
+      escape = FALSE,
+      filter = "none",
+      options = list(
+        dom = "<'top' p> t <'bottom' i p>",
+        pageLength = 25,
+        scrollX = FALSE,
+        autoWidth = FALSE,
+        columnDefs = col_defs
+      )
+    )
+  })
+
+  # 9. Download handler for outcomes
+  output$downloadOutcomes <- downloadHandler(
+    filename = function() "Filtered_Outcomes.xlsx",
+    content = function(file) {
+      write_xlsx(processed_outcome_data(), file)
+    }
+  )
+
+  # 10. Clear‑all button for outcomes
+  simpleFiltersServer(
+    "outcome_simple_filters",
+    reset_study_period = outcome_study_period$resetSlider
   )
 }
 

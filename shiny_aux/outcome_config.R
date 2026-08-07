@@ -1,0 +1,61 @@
+outcome_always_hide <- c(
+  "row_id",
+  "char_row_id",
+  "Covidence ID",
+  "Minimum Age (days)",
+  "Maximum Age (days)",
+  "Point Estimate",
+  "CI Lower",
+  "CI Upper",
+  "Study Design Specifics",
+  "Definition [of outcome]",
+  "Notes 1",
+  "Notes 2"
+)
+
+outcome_column_order <- c(
+  "row_id",
+  "char_row_id",
+  "Study Label",
+  "Study Label with subgroup indication",
+  "Covidence ID",
+  "Type of Outcome",
+  "Study Design",
+  "Population",
+  "Age Range",
+  "Minimum Age",
+  "Maximum Age",
+  "Vaccine",
+  "Outcome",
+  "Intervention",
+  "Vaccine Formulation for Intervention Arm",
+  "Strain Targeted by Intervention Vaccine",
+  "Number of events in intervention arm",
+  "Sample size intervention",
+  "Comparator",
+  "Vaccine Formulation for Comparator Arm",
+  "Strain Targeted by Comparator Vaccine",
+  "Number of events in comparator arm",
+  "Sample size comparator",
+  "Number of events (ecological studies)",
+  "N total (ecological studies)",
+  "Estimate (95% CI)",
+  "Estimate Type",
+  "Definition [of outcome]",
+  "Factors Adjusted",
+  "Risk of Bias",
+  "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS-I)",
+  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS-I)"
+)
+
+outcome_desired_widths <- c(
+  "Study Label" = 150,
+  "Type of Outcome" = 100,
+  "Study Design" = 150,
+  "Population" = 120,
+  "Age Range" = 100,
+  "Vaccine" = 120,
+  "Outcome" = 180,
+  "Estimate (95% CI)" = 150,
+  "Risk of Bias" = 120
+)
