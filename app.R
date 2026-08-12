@@ -166,6 +166,11 @@ ui <- fluidPage(
         sidebar_id = "outcomes_sidebar",
         toggle_btn = FALSE,
         sidebar_content = tagList(
+          checkboxInput(
+            "outcome_lightweight",
+            "Lightweight view (hide counts)",
+            value = TRUE
+          ),
           div(
             style = "margin-bottom: 8px;",
             downloadButton(
@@ -632,6 +637,21 @@ server <- function(input, output, session) {
 
     # Rename Vaccine -> Comparison
     names(display)[names(display) == "Vaccine"] <- "Comparison"
+
+    # Conditionally hide ecological total columns
+    if (isTRUE(input$outcome_lightweight)) {
+      display <- drop_columns(
+        display,
+        c(
+          "Number of events (ecological studies)",
+          "N total (ecological studies)",
+          "Number of events in intervention arm",
+          "Sample size intervention",
+          "Number of events in comparator arm",
+          "Sample size comparator"
+        )
+      )
+    }
 
     # Reorder columns
     display <- display[,

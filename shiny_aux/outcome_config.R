@@ -2,6 +2,8 @@ outcome_always_hide <- c(
   "row_id",
   "char_row_id",
   "Covidence ID",
+  "Study Label with subgroup indication",
+  "Type of Outcome",
   "Minimum Age (days)",
   "Maximum Age (days)",
   "Minimum Age",
@@ -15,7 +17,11 @@ outcome_always_hide <- c(
   "Notes 1",
   "Notes 2",
   "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS-I)",
-  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS-I)"
+  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS-I)",
+  "Intervention",
+  "Comparator",
+  "Strain Targeted by Intervention Vaccine",
+  "Strain Targeted by Comparator Vaccine"
 )
 
 outcome_column_order <- c(
@@ -53,14 +59,15 @@ outcome_column_order <- c(
 )
 
 outcome_desired_widths <- c(
-  "Study Label" = 150,
+  "Study Label" = 100,
   "Type of Outcome" = 100,
-  "Study Design" = 150,
+  "Study Design" = 120,
   "Population" = 120,
   "Age Range" = 100,
   # "Vaccine" = 120,
   "Comparison" = 120, # ← renamed
-  "Outcome" = 180,
-  "Estimate (95% CI)" = 150,
-  "Risk of Bias" = 120
+  "Outcome" = 100,
+  "Factors Adjusted" = 170,
+  "Estimate (95% CI)" = 120,
+  "Risk of Bias" = 100
 )
