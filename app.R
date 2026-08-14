@@ -168,7 +168,7 @@ ui <- fluidPage(
         sidebar_content = tagList(
           checkboxInput(
             "outcome_lightweight",
-            "Lightweight view (hide counts)",
+            "Lightweight view (hide counts, factors adjusted)",
             value = TRUE
           ),
           div(
@@ -258,7 +258,8 @@ server <- function(input, output, session) {
   # )
   study_period_module <- studyPeriodFilterServer(
     "simple_filters-study_period",
-    char_data,
+    data = char_data,
+    id_col = "char_row_id",
     all_ids = all_char_ids
   )
 
@@ -485,8 +486,9 @@ server <- function(input, output, session) {
   # 1. Create a separate study‑period filter for outcomes
   outcome_study_period <- studyPeriodFilterServer(
     "outcome_simple_filters-study_period",
-    char_data,
-    all_ids = all_outcome_ids # we still filter by study start years from the characteristics
+    data = outcome_data,
+    id_col = "row_id",
+    all_ids = all_outcome_ids
   )
 
   # 2. Instantiate all other filters for outcomes (use the SAME filter functions)
@@ -548,15 +550,15 @@ server <- function(input, output, session) {
     ids_domain <- outcome_domain_filter()
     ids_rob <- outcome_rob_filter()
     ids_type_of_outcome <- outcome_type_of_outcome_filter()
+    ids_period <- outcome_study_period$ids()
     ids_adv <- outcome_advanced_filter()
 
     # Filters that still return char_row_id
     ids_design <- outcome_design_filter()
-    ids_period <- outcome_study_period$ids()
 
     # Convert char_row_id → row_id
     char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
-    char_ids <- Reduce(intersect, list(ids_design, ids_period))
+    char_ids <- Reduce(intersect, list(ids_design))
     char_row_ids <- char_to_row %>%
       filter(char_row_id %in% char_ids) %>%
       pull(row_id)
@@ -571,6 +573,7 @@ server <- function(input, output, session) {
         ids_type_of_outcome,
         ids_domain,
         ids_rob,
+        ids_period,
         ids_adv,
         char_row_ids
       )
@@ -624,7 +627,8 @@ server <- function(input, output, session) {
   observe({
     outcome_study_period$setFilteredData(
       # histogram still shows distribution of study start years
-      char_data %>% filter(char_row_id %in% filtered_outcome_ids())
+      # char_data %>% filter(char_row_id %in% filtered_outcome_ids())
+      outcome_data %>% filter(row_id %in% filtered_outcome_ids())
     )
   })
 
@@ -632,11 +636,25 @@ server <- function(input, output, session) {
   processed_outcome_data <- reactive({
     display <- filtered_outcome_data()
 
+    # Exclude rows where Point Estimate is missing / NR / NA
+    display <- display %>%
+      filter(
+        !is.na(`Point Estimate`) &
+          trimws(`Point Estimate`) != "" &
+          !trimws(`Point Estimate`) %in% c("NR", "NA")
+      )
+
     # Hide unwanted columns
     display <- drop_columns(display, outcome_always_hide)
 
     # Rename Vaccine -> Comparison
     names(display)[names(display) == "Vaccine"] <- "Comparison"
+
+    # Rename Type of Outcome -> Type of Estimate
+    names(display)[names(display) == "Type of Outcome"] <- "Type of Estimate"
+
+    # Rename Domain -> Type of Outcome
+    names(display)[names(display) == "Domain"] <- "Type of Outcome"
 
     # Conditionally hide ecological total columns
     if (isTRUE(input$outcome_lightweight)) {
@@ -648,7 +666,9 @@ server <- function(input, output, session) {
           "Number of events in intervention arm",
           "Sample size intervention",
           "Number of events in comparator arm",
-          "Sample size comparator"
+          "Sample size comparator",
+          "Factors Adjusted",
+          "Study Period"
         )
       )
     }

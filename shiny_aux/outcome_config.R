@@ -3,7 +3,8 @@ outcome_always_hide <- c(
   "char_row_id",
   "Covidence ID",
   "Study Label with subgroup indication",
-  "Type of Outcome",
+  "Type of Outcome", # raw name that later becomes Type of Estimate
+  # "Domain",                               # add this if you also want to hide the domain column
   "Minimum Age (days)",
   "Maximum Age (days)",
   "Minimum Age",
@@ -21,7 +22,11 @@ outcome_always_hide <- c(
   "Intervention",
   "Comparator",
   "Strain Targeted by Intervention Vaccine",
-  "Strain Targeted by Comparator Vaccine"
+  # "Factors Adjusted",
+  "Strain Targeted by Comparator Vaccine",
+  "Study Period Start",
+  "Study Period End",
+  "Vaccine"
 )
 
 outcome_column_order <- c(
@@ -30,12 +35,15 @@ outcome_column_order <- c(
   "Study Label",
   "Study Label with subgroup indication",
   "Covidence ID",
-  "Type of Outcome",
+  "Type of Estimate",
   "Study Design",
   "Population",
   "Age Range",
   "Minimum Age",
   "Maximum Age",
+  "Study Period",
+  "Study Period Start",
+  "Study Period End",
   # "Vaccine",
   "Comparison", # renamed
   "Outcome",
@@ -60,7 +68,7 @@ outcome_column_order <- c(
 
 outcome_desired_widths <- c(
   "Study Label" = 100,
-  "Type of Outcome" = 100,
+  "Type of Estimate" = 100,
   "Study Design" = 120,
   "Population" = 120,
   "Age Range" = 100,

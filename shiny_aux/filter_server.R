@@ -1,17 +1,27 @@
-studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
+studyPeriodFilterServer <- function(
+  id,
+  data,
+  id_col = "char_row_id",
+  all_ids = NULL
+) {
   moduleServer(id, function(input, output, session) {
-    # placeholder for filtered_data
     filtered_data_reactive <- reactiveVal(NULL)
 
-    # function to inject filtered_data later
     setFilteredData <- function(fd) {
       filtered_data_reactive(fd)
     }
 
-    years <- as.integer(char_data$`Study Period Start`)
-    years <- years[!is.na(years)]
-    min_yr <- min(years)
-    max_yr <- max(years)
+    # Numeric years from the data, ignoring missing
+    years_raw <- suppressWarnings(as.numeric(data[["Study Period Start"]]))
+    years <- years_raw[!is.na(years_raw)]
+
+    if (length(years) == 0) {
+      min_yr <- 0
+      max_yr <- 0
+    } else {
+      min_yr <- min(years)
+      max_yr <- max(years)
+    }
 
     output$slider_ui <- renderUI({
       sliderInput(
@@ -27,16 +37,23 @@ studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
 
     ids <- reactive({
       sel <- input$year_range
+
+      # If the slider is still at the full default range, do not filter.
       if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
-        return(unique(all_ids %||% char_data$char_row_id))
+        return(unique(all_ids %||% data[[id_col]]))
       }
 
-      char_data %>%
-        filter(
-          is.na(`Study Period Start`) |
-            (`Study Period Start` >= sel[1] & `Study Period Start` <= sel[2])
+      # When a narrower range is selected, keep only rows with a valid start year.
+      data %>%
+        mutate(
+          sp_start_num = suppressWarnings(as.numeric(`Study Period Start`))
         ) %>%
-        pull(char_row_id) %>%
+        filter(
+          !is.na(sp_start_num),
+          sp_start_num >= sel[1],
+          sp_start_num <= sel[2]
+        ) %>%
+        pull(!!sym(id_col)) %>%
         unique()
     })
 
@@ -45,13 +62,11 @@ studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
         fd <- filtered_data_reactive()
         req(fd)
 
-        yrs <- fd$`Study Period Start`
+        yrs <- suppressWarnings(as.numeric(fd[["Study Period Start"]]))
         yrs <- yrs[!is.na(yrs)]
 
         hist_df <- as.data.frame(table(yrs))
         names(hist_df) <- c("year", "count")
-
-        # works x-axis, too many ticks
 
         ggplot(hist_df, aes(x = factor(year), y = count)) +
           geom_col(fill = "#007bc2", width = 0.55) +
@@ -66,30 +81,14 @@ studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
             axis.text.x = element_text(color = "#555"),
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank(),
-
-            # ⭐ remove vertical gridlines
             panel.grid.major.x = element_blank(),
             panel.grid.minor.x = element_blank(),
-
-            # keep horizontal gridlines removed too
             panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank(),
-
             plot.background = element_rect(fill = "transparent", color = NA),
             panel.background = element_rect(fill = "transparent", color = NA),
             plot.margin = margin(0, 0, 0, 0)
           )
-
-        # works but no x-axis
-
-        # ggplot(hist_df, aes(x = year, y = count)) +
-        #   geom_col(fill = "#007bc2", width = 0.55) +
-        #   theme_void() +
-        #   theme(
-        #     plot.background = element_rect(fill = "transparent", color = NA),
-        #     panel.background = element_rect(fill = "transparent", color = NA),
-        #     plot.margin = margin(0, 0, 0, 0)
-        #   )
       },
       height = 80,
       bg = "transparent"
@@ -97,13 +96,12 @@ studyPeriodFilterServer <- function(id, char_data, all_ids = NULL) {
 
     output$period_message <- renderText({
       sel <- input$year_range
-      if (is.null(sel)) {
+      if (is.null(sel) || (sel[1] == min_yr && sel[2] == max_yr)) {
         return("Showing all study periods")
       }
       paste("Showing studies with start year", sel[1], "to", sel[2])
     })
 
-    # return both the IDs and the setter
     list(
       ids = ids,
       setFilteredData = setFilteredData,

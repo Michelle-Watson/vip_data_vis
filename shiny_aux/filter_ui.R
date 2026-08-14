@@ -133,7 +133,7 @@ robFilterUI <- function(id) {
 domainFilterUI <- function(id) {
   ns <- NS(id)
   tagList(
-    h4("Domains", style = "margin-bottom: 20px;"),
+    h4("Type of Outcome", style = "margin-bottom: 20px;"),
     checkboxGroupInput(
       ns("domains"),
       label = NULL,
@@ -171,12 +171,12 @@ simpleFiltersUI <- function(id) {
       wellPanel(
         # filters on left side
 
+        virusFilterUI(ns("virus")),
+        domainFilterUI(ns("domain")), # now labelled "Type of Outcome"
         ageGroupFilterUI(ns("age_group")),
         popTypeFilterUI(ns("pop_type")),
-        virusFilterUI(ns("virus")),
         studyPeriodFilterUI(ns("study_period")),
         studyDesignFilterUI(ns("study_design")),
-        domainFilterUI(ns("domain")),
         robFilterUI(ns("rob"))
         # filters on TOP
         # fluidRow(
@@ -196,15 +196,15 @@ simpleFiltersUI <- function(id) {
 typeOfOutcomeFilterUI <- function(id) {
   ns <- NS(id)
   tagList(
-    h4("Type of Outcome", style = "margin-bottom: 20px;"),
+    h4("Type of Estimate", style = "margin-bottom: 20px;"),
     checkboxGroupInput(
       ns("types"),
       label = NULL,
       choices = c(
         "Adjusted Comparative" = "Adjusted Comparative",
-        "Unadjusted Comparative" = "Unadjusted Comparative",
-        "Single Arm" = "Single Arm",
-        "Ecological" = "Ecological"
+        "Unadjusted Comparative" = "Unadjusted Comparative" #,
+        # "Single Arm" = "Single Arm",
+        # "Ecological" = "Ecological"
       ),
       selected = NULL
     ),
@@ -235,13 +235,13 @@ outcomeSimpleFiltersUI <- function(id) {
     conditionalPanel(
       condition = paste0("input['", ns("show_simple"), "'] == true"),
       wellPanel(
+        virusFilterUI(ns("virus")),
+        domainFilterUI(ns("domain")), # now labelled "Type of Outcome"
         ageGroupFilterUI(ns("age_group")),
         popTypeFilterUI(ns("pop_type")),
-        virusFilterUI(ns("virus")),
         studyPeriodFilterUI(ns("study_period")),
         studyDesignFilterUI(ns("study_design")),
-        typeOfOutcomeFilterUI(ns("type_of_outcome")), # ← new filter
-        domainFilterUI(ns("domain")),
+        typeOfOutcomeFilterUI(ns("type_of_outcome")), # now labelled "Type of Estimate"
         robFilterUI(ns("rob"))
       )
     )
