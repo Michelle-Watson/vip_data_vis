@@ -141,8 +141,10 @@ robFilterUI <- function(id) {
       label = NULL,
       choices = c(
         "Low" = "Low",
-        "Some Concerns / Moderate" = "Some Concerns / Moderate",
-        "High / Serious" = "High / Serious",
+        "Some Concerns" = "Some Concerns",
+        "Moderate" = "Moderate",
+        "High" = "High",
+        "Serious" = "Serious",
         "Critical" = "Critical"
       ),
       selected = NULL

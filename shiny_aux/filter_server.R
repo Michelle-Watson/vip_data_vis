@@ -422,9 +422,11 @@ robFilterServer <- function(
         "Low",
         "Low risk of bias (except for concerns about uncontrolled confounding)"
       ),
-      "Some Concerns / Moderate" = c("Some Concerns", "Moderate"),
-      "High / Serious" = c("High", "Serious"),
-      "Critical" = c("Critical")
+      "Some Concerns" = "Some Concerns",
+      "Moderate" = "Moderate",
+      "High" = "High",
+      "Serious" = "Serious",
+      "Critical" = "Critical"
     )
 
     # Dynamic helper message
