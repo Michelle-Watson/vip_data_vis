@@ -49,8 +49,17 @@ outcome_virus_long <- read_excel(outcome_path, sheet = "Virus_Long")
 
 # Domain mapping for outcomes. Each outcome row has exactly one domain
 # It's already in the main sheet, but need a long sheet since the domain function expects a long sheet. Just adding this so the code can be reused. Revisit later since this is unnecessary overall
+# outcome_domain_long <- outcome_data %>%
+#   select(row_id, Domain)
 outcome_domain_long <- outcome_data %>%
-  select(row_id, Domain)
+  select(row_id, Domain) %>%
+  mutate(
+    Domain = if_else(
+      grepl("epidem|ecological", Domain, ignore.case = TRUE),
+      "Epidemiologic",
+      Domain
+    )
+  )
 
 # Build risk-of-bias mapping for outcomes – one rating per outcome row
 outcome_rob_long <- outcome_data %>%
@@ -189,7 +198,11 @@ ui <- fluidPage(
             textOutput("outcome_count")
           ),
           div(
-            style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
+            style = "display: flex; align-items: center; justify-content: space-between; margin: 12px 0 8px 0; gap: 10px;",
+            tags$span(
+              style = "color: #888; font-size: 12px; font-style: italic;",
+              "Ecological studies, and other studies, may not appear in the outcomes view if they did not report an estimate. All extracted data remains available for download."
+            ),
             downloadButton(
               "downloadOutcomes",
               "Download Outcomes",
@@ -510,9 +523,15 @@ server <- function(input, output, session) {
     id_col = "row_id",
     all_ids = all_outcome_ids
   )
-  outcome_design_filter <- studyDesignFilterServer(
+  # outcome_design_filter <- studyDesignFilterServer(
+  #   "outcome_simple_filters-study_design",
+  #   char_data,
+  #   all_ids = all_outcome_ids
+  # )
+  outcome_design_filter <- outcomeStudyDesignFilterServer(
     "outcome_simple_filters-study_design",
-    char_data,
+    outcome_data = outcome_data,
+    id_col = "row_id",
     all_ids = all_outcome_ids
   )
   outcome_domain_filter <- domainFilterServer(
@@ -543,42 +562,68 @@ server <- function(input, output, session) {
 
   # 3. Combine all filters to get a vector of allowed char_row_ids
   filtered_outcome_ids <- reactive({
-    # Filters that return row_id
+    # # Filters that return row_id
+    # ids_age <- outcome_age_filter()
+    # ids_type <- outcome_type_filter()
+    # ids_virus <- outcome_virus_filter()
+    # ids_domain <- outcome_domain_filter()
+    # ids_rob <- outcome_rob_filter()
+    # ids_type_of_outcome <- outcome_type_of_outcome_filter()
+    # ids_period <- outcome_study_period$ids()
+    # ids_adv <- outcome_advanced_filter()
+    #
+    # # Filters that still return char_row_id
+    # ids_design <- outcome_design_filter()
+    #
+    # # Convert char_row_id → row_id
+    # char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
+    # char_ids <- Reduce(intersect, list(ids_design))
+    # char_row_ids <- char_to_row %>%
+    #   filter(char_row_id %in% char_ids) %>%
+    #   pull(row_id)
+    #
+    # # Final intersection
+    # result_ids <- Reduce(
+    #   intersect,
+    #   list(
+    #     ids_age,
+    #     ids_type,
+    #     ids_virus,
+    #     ids_type_of_outcome,
+    #     ids_domain,
+    #     ids_rob,
+    #     ids_period,
+    #     ids_adv,
+    #     char_row_ids
+    #   )
+    # )
+
+    # All outcome filters now return outcome row IDs (`row_id`),
+    # so we can intersect them directly without any study‑level conversion.
     ids_age <- outcome_age_filter()
     ids_type <- outcome_type_filter()
     ids_virus <- outcome_virus_filter()
     ids_domain <- outcome_domain_filter()
     ids_rob <- outcome_rob_filter()
     ids_type_of_outcome <- outcome_type_of_outcome_filter()
+    ids_design <- outcome_design_filter()
     ids_period <- outcome_study_period$ids()
     ids_adv <- outcome_advanced_filter()
 
-    # Filters that still return char_row_id
-    ids_design <- outcome_design_filter()
-
-    # Convert char_row_id → row_id
-    char_to_row <- outcome_data %>% distinct(char_row_id, row_id)
-    char_ids <- Reduce(intersect, list(ids_design))
-    char_row_ids <- char_to_row %>%
-      filter(char_row_id %in% char_ids) %>%
-      pull(row_id)
-
-    # Final intersection
     result_ids <- Reduce(
       intersect,
       list(
         ids_age,
         ids_type,
         ids_virus,
+        ids_design,
         ids_type_of_outcome,
         ids_domain,
         ids_rob,
         ids_period,
-        ids_adv,
-        char_row_ids
+        ids_adv
       )
     )
-
     # Diagnostics – print to console
     message("--- Outcome filter diagnostics ---")
     message("  age:        ", length(ids_age))
@@ -590,7 +635,7 @@ server <- function(input, output, session) {
     message("  rob:        ", length(ids_rob))
     message("  period:     ", length(ids_period))
     message("  advanced:   ", length(ids_adv))
-    message("  char_row_ids: ", length(char_row_ids))
+    # message("  char_row_ids: ", length(char_row_ids))
     message("  final intersection: ", length(result_ids))
 
     # Temporary diagnostic – find dropped outcome rows

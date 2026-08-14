@@ -1,3 +1,116 @@
+# Outcomes‑specific study design filter.
+# If the user selects:
+#   - "Single Arm"  -> include rows where `Study Design` == "Non-randomized single arm"
+#                      OR `Type of Outcome` == "Single Arm"
+#   - "Ecological"  -> include rows where `Study Design` == "Ecological"
+#                      OR `Type of Outcome` == "Ecological"
+#   - "RCT" or "Observational - with comparator group" -> match `Study Design` only.
+outcomeStudyDesignFilterServer <- function(
+  id,
+  outcome_data,
+  id_col = "row_id",
+  all_ids = NULL
+) {
+  moduleServer(id, function(input, output, session) {
+    # output$design_message <- renderText({
+    #   selected <- input$designs
+    #   if (is.null(selected) || length(selected) == 0) {
+    #     return("Showing all study designs")
+    #   }
+    #   if (length(selected) == 1) {
+    #     paste("Showing outcomes from", selected, "studies")
+    #   } else if (length(selected) == 2) {
+    #     paste(
+    #       "Showing outcomes from",
+    #       selected[1],
+    #       "or",
+    #       selected[2],
+    #       "studies"
+    #     )
+    #   } else {
+    #     paste("Showing outcomes from selected study designs")
+    #   }
+    # })
+    output$design_message <- renderText({
+      selected <- input$designs
+
+      # No filter selected
+      if (is.null(selected) || length(selected) == 0) {
+        return("Showing outcomes from all study designs.")
+      }
+
+      # Base sentence describing the selected study design(s)
+      base <- paste0(
+        "Showing outcomes from ",
+        paste(selected, collapse = " or "),
+        " studies."
+      )
+
+      # Extra explanation for Non‑randomized single arm
+      note <- ""
+      if ("Non-randomized single arm" %in% selected) {
+        note <- paste0(
+          note,
+          " This includes any outcome row classified as Single Arm.",
+          " If the study design was not single arm, those outcomes were classified as single arm due to an ineligible comparator arm."
+        )
+      }
+
+      paste0(base, note)
+    })
+    reactive({
+      selected <- input$designs
+
+      # No filter selected -> return all outcome row IDs.
+      if (is.null(selected) || length(selected) == 0) {
+        return(all_ids %||% unique(outcome_data[[id_col]]))
+      }
+
+      # Map the user‑facing labels to the actual Study Design column values.
+      design_map <- c(
+        "RCT" = "RCT",
+        "Observational - with comparator group" = "Observational - with comparator group",
+        # "Single Arm" = "Non-randomized single arm",
+        "Non-randomized single arm" = "Non-randomized single arm",
+        "Ecological" = "Ecological"
+      )
+
+      # Design values to match in the raw Study Design column.
+      selected_design_values <- unname(design_map[selected])
+
+      # Type values to match in the raw Type of Outcome column.
+      # These are only relevant for Single Arm and Ecological.
+
+      # selected_type_values <- selected[
+      #   selected %in% c("Single Arm", "Ecological")
+      # ]
+      # For "Non-randomized single arm", we also match the derived Type of Outcome
+      # value "Single Arm". For Ecological, the Study Design and Type of Outcome labels match.
+      selected_type_values <- selected
+      selected_type_values[
+        selected_type_values == "Non-randomized single arm"
+      ] <- "Single Arm"
+
+      selected_type_values <- selected_type_values[
+        selected_type_values %in% c("Single Arm", "Ecological")
+      ]
+
+      # Build a logical keep flag:
+      # keep = row's Study Design matches OR row's Type of Outcome matches.
+      outcome_data %>%
+        mutate(
+          design_match = `Study Design` %in% selected_design_values,
+          type_match = `Type of Outcome` %in% selected_type_values,
+          keep = design_match | type_match
+        ) %>%
+        filter(keep) %>%
+        pull(!!sym(id_col)) %>%
+        unique()
+    })
+  })
+}
+
+
 studyPeriodFilterServer <- function(
   id,
   data,
@@ -65,8 +178,13 @@ studyPeriodFilterServer <- function(
         yrs <- suppressWarnings(as.numeric(fd[["Study Period Start"]]))
         yrs <- yrs[!is.na(yrs)]
 
-        hist_df <- as.data.frame(table(yrs))
-        names(hist_df) <- c("year", "count")
+        # hist_df <- as.data.frame(table(yrs))
+        # names(hist_df) <- c("year", "count")
+        hist_df <- data.frame(
+          year = names(table(yrs)),
+          count = as.integer(table(yrs)),
+          stringsAsFactors = FALSE
+        )
 
         ggplot(hist_df, aes(x = factor(year), y = count)) +
           geom_col(fill = "#007bc2", width = 0.55) +

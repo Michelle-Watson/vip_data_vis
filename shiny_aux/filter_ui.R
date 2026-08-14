@@ -1,3 +1,24 @@
+# Outcomes‑specific study design filter.
+# The "Single Arm" and "Ecological" choices intentionally match BOTH:
+#   - the raw Study Design column
+#   - the derived Type of Outcome column
+outcomeStudyDesignFilterUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h4("Study Design", style = "margin-bottom: 20px;"),
+    checkboxGroupInput(
+      ns("designs"),
+      label = NULL,
+      choices = c(
+        "RCT" = "RCT",
+        "Observational - with comparator group" = "Observational - with comparator group",
+        "Non-randomized single arm" = "Non-randomized single arm"
+      ),
+      selected = NULL
+    ),
+    tags$div(class = "filter-message", textOutput(ns("design_message")))
+  )
+}
 # studyPeriodFilterUI <- function(id) {
 #   ns <- NS(id)
 #   tagList(
@@ -102,14 +123,14 @@ studyDesignFilterUI <- function(id) {
       choices = c(
         "RCT" = "RCT",
         "Observational - with comparator group" = "Observational - with comparator group",
-        "Non-randomized single arm" = "Non-randomized single arm",
-        "Ecological" = "Ecological"
+        "Non-randomized single arm" = "Non-randomized single arm"
       ),
       selected = NULL
     ),
     tags$div(class = "filter-message", textOutput(ns("design_message")))
   )
 }
+
 
 robFilterUI <- function(id) {
   ns <- NS(id)
@@ -177,6 +198,7 @@ simpleFiltersUI <- function(id) {
         popTypeFilterUI(ns("pop_type")),
         studyPeriodFilterUI(ns("study_period")),
         studyDesignFilterUI(ns("study_design")),
+        # outcomeStudyDesignFilterUI(ns("study_design")),
         robFilterUI(ns("rob"))
         # filters on TOP
         # fluidRow(
@@ -240,7 +262,8 @@ outcomeSimpleFiltersUI <- function(id) {
         ageGroupFilterUI(ns("age_group")),
         popTypeFilterUI(ns("pop_type")),
         studyPeriodFilterUI(ns("study_period")),
-        studyDesignFilterUI(ns("study_design")),
+        # studyDesignFilterUI(ns("study_design")),
+        outcomeStudyDesignFilterUI(ns("study_design")),
         typeOfOutcomeFilterUI(ns("type_of_outcome")), # now labelled "Type of Estimate"
         robFilterUI(ns("rob"))
       )
