@@ -64,5 +64,35 @@ filter_message_css <- paste0(
   max-width: 100%;
   overflow-x: auto;
 }
+
+.table-responsive .dataTables_wrapper {
+  width: 100% !important;
+  box-sizing: border-box;
+}
   '
+)
+
+
+filter_message_css <- paste0(
+  filter_message_css,
+  r"(
+  /* Sticky navigation tabs + fixed logo */
+  .nav-tabs {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background-color: #ffffff !important;
+    padding-right: 160px;   /* keep tabs clear of the logo */
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .app-logo {
+    position: fixed;
+    top: 4px;
+    right: 24px;
+    height: 35px;
+    z-index: 1000;
+  }
+  )"
 )

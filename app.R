@@ -10,7 +10,7 @@ library(dplyr)
 library(writexl)
 library(ggplot2)
 library(rlang)
-
+library(bslib)
 
 source("shiny_aux/helpers.R")
 source("shiny_aux/config.R")
@@ -71,6 +71,10 @@ outcome_rob_long <- outcome_data %>%
 ui <- fluidPage(
   useShinyjs(),
   # titlePanel("VIP 2026-2027"),
+  tags$img(
+    src = "VIP_Logo_Horizontal.png",
+    class = "app-logo"
+  ),
   tags$style(HTML(filter_message_css)),
   tabsetPanel(
     tabPanel(
@@ -517,7 +521,7 @@ server <- function(input, output, session) {
         scrollX = TRUE,
 
         # Enable internal vertical + horizontal scrolling. NEED to set vetical heigh for table to freeze the top row
-        scrollY = "69vh",
+        scrollY = "67vh", #69 vh?
         scrollX = TRUE,
 
         # Freeze the first column
@@ -821,6 +825,60 @@ server <- function(input, output, session) {
     display <- processed_outcome_data()
     col_defs <- make_col_defs(display, outcome_desired_widths)
 
+    # Add responsive priorities: lower = more important, collapses later
+    outcome_priority_map <- c(
+      "Study Label" = 1,
+      "Population" = 2,
+      "Age Range" = 3,
+      "Outcome" = 4,
+      "Vaccine Formulation for Intervention Arm" = 5,
+      "Vaccine Formulation for Comparator Arm" = 6,
+      "Study Design" = 7,
+      "Estimate (95% CI)" = 8,
+      "Definition [of outcome]" = 9,
+      "Risk of Bias" = 10,
+      "Factors Adjusted" = 11,
+      "Sample size intervention" = 12,
+      "Sample size comparator" = 13,
+      "Follow-up" = 14,
+      "Number of events in intervention arm" = 15,
+      "Number of events in comparator arm" = 16,
+      "Strain Targeted by Intervention Vaccine" = 17,
+      "Strain Targeted by Comparator Vaccine" = 18,
+      "Comparison" = 19,
+      "Study Period" = 20,
+      "Number of events (ecological studies)" = 21,
+      "N total (ecological studies)" = 22,
+      "Follow-up (days)" = 23,
+      "Minimum Age" = 24,
+      "Maximum Age" = 25,
+      "Intervention" = 26,
+      "Comparator" = 27,
+      "Type of Estimate" = 28,
+      "Estimate Type" = 29
+    )
+
+    present <- intersect(names(outcome_priority_map), names(display))
+
+    for (col in present) {
+      col_defs <- c(
+        col_defs,
+        list(list(
+          targets = col,
+          responsivePriority = as.integer(outcome_priority_map[[col]])
+        ))
+      )
+    }
+
+    # Study Label must always remain visible
+    col_defs <- c(
+      col_defs,
+      list(list(
+        targets = "Study Label",
+        className = "all"
+      ))
+    )
+
     # Add sorting helper for Estimate (95% CI) via hidden numeric columns if present
     # For now we skip extra sorting helpers – you can add them later if needed.
 
@@ -829,14 +887,21 @@ server <- function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = "none",
+      extensions = c("FixedColumns", "Responsive"),
       # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
         # dom = "<'top' p> t <'bottom' i p>",
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' p f> t <'bottom' i p>",
         pageLength = 25,
-        # scrollX = FALSE,
+
+        # Must be set for the header row to freeze
+        scrollY = "59vh",
         scrollX = TRUE,
+        # scrollX = FALSE,
+
+        fixedColumns = list(leftColumns = 1),
+
         autoWidth = FALSE,
         columnDefs = col_defs
       )
