@@ -70,7 +70,7 @@ outcome_rob_long <- outcome_data %>%
 # ---- User Interface ----
 ui <- fluidPage(
   useShinyjs(),
-  titlePanel("VIP 2026-2027"),
+  # titlePanel("VIP 2026-2027"),
   tags$style(HTML(filter_message_css)),
   tabsetPanel(
     tabPanel(
@@ -177,7 +177,7 @@ ui <- fluidPage(
         sidebar_content = tagList(
           checkboxInput(
             "outcome_lightweight",
-            "Lightweight view (hide counts, factors adjusted)",
+            "Lightweight view (hide counts, outcome definition, factors adjusted)",
             value = TRUE
           ),
           div(
@@ -681,6 +681,21 @@ server <- function(input, output, session) {
   processed_outcome_data <- reactive({
     display <- filtered_outcome_data()
 
+    # Add Link/DOI from Study Characteristics for clickable Study Label
+    display <- display %>%
+      left_join(
+        char_data %>%
+          select(char_row_id, Link, DOI) %>%
+          mutate(char_row_id = as.character(char_row_id)),
+        by = "char_row_id"
+      )
+
+    # Sort alphabetically by plain Study Label BEFORE converting to HTML
+    display <- display %>% arrange(`Study Label`)
+
+    # Make the main study label clickable
+    display <- make_label_clickable(display, "Study Label")
+
     # Exclude rows where Point Estimate is missing / NR / NA
     display <- display %>%
       filter(
@@ -713,7 +728,8 @@ server <- function(input, output, session) {
           "Number of events in comparator arm",
           "Sample size comparator",
           "Factors Adjusted",
-          "Study Period"
+          "Study Period",
+          "Definition [of outcome]"
         )
       )
     }
@@ -725,7 +741,7 @@ server <- function(input, output, session) {
     ]
 
     # Sort alphabetically by Study Label
-    display <- display %>% arrange(`Study Label`)
+    # display <- display %>% arrange(`Study Label`)
     display
   })
 

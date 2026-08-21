@@ -38,6 +38,30 @@ make_study_clickable <- function(df) {
   df
 }
 
+# Make a generic label column clickable using Link/DOI
+make_label_clickable <- function(df, label_col) {
+  has_link <- is_valid_url(df$Link)
+  has_doi <- is_valid_url(df$DOI)
+
+  chosen_url <- ifelse(
+    has_link,
+    df$Link,
+    ifelse(has_doi, df$DOI, NA_character_)
+  )
+
+  df[[label_col]] <- ifelse(
+    !is.na(chosen_url),
+    paste0(
+      '<a href="',
+      chosen_url,
+      '" target="_blank">',
+      df[[label_col]],
+      '</a>'
+    ),
+    df[[label_col]]
+  )
+  df
+}
 
 # Build columnDefs list from desired widths (only for existing columns)
 make_col_defs <- function(df, widths) {

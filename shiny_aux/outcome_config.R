@@ -14,7 +14,7 @@ outcome_always_hide <- c(
   "CI Lower",
   "CI Upper",
   "Study Design Specifics",
-  "Definition [of outcome]",
+  # "Definition [of outcome]",
   "Notes 1",
   "Notes 2",
   "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS-I)",
@@ -26,7 +26,9 @@ outcome_always_hide <- c(
   "Strain Targeted by Comparator Vaccine",
   "Study Period Start",
   "Study Period End",
-  "Vaccine"
+  "Vaccine",
+  "Link",
+  "Follow-up (days)"
 )
 
 outcome_column_order <- c(
@@ -47,6 +49,9 @@ outcome_column_order <- c(
   # "Vaccine",
   "Comparison", # renamed
   "Outcome",
+  "Definition [of outcome]",
+  "Follow-up",
+  "Follow-up (days)",
   "Intervention",
   "Vaccine Formulation for Intervention Arm",
   "Strain Targeted by Intervention Vaccine",

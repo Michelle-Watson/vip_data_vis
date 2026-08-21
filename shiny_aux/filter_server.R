@@ -188,9 +188,21 @@ studyPeriodFilterServer <- function(
 
         ggplot(hist_df, aes(x = factor(year), y = count)) +
           geom_col(fill = "#007bc2", width = 0.55) +
+          # scale_x_discrete(
+          #   breaks = sort(unique(hist_df$year)),
+          #   labels = sort(unique(hist_df$year))
+          # ) +
           scale_x_discrete(
-            breaks = sort(unique(hist_df$year)),
-            labels = sort(unique(hist_df$year))
+            breaks = {
+              yrs <- sort(unique(hist_df$year))
+              keep <- seq(1, length(yrs), by = max(1, floor(length(yrs) / 8)))
+              yrs[keep]
+            },
+            labels = {
+              yrs <- sort(unique(hist_df$year))
+              keep <- seq(1, length(yrs), by = max(1, floor(length(yrs) / 8)))
+              yrs[keep]
+            }
           ) +
           theme_minimal(base_size = 9) +
           theme(
