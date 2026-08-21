@@ -550,7 +550,7 @@ server <- function(input, output, session) {
       # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
-        dom = "<'top' p f> t <'bottom' i p>",
+        dom = "<'top' f> t <'bottom' i p>",
         pageLength = 50,
         # scrollX = FALSE,
         scrollX = TRUE,
@@ -863,12 +863,12 @@ server <- function(input, output, session) {
     # Add responsive priorities: lower = more important, collapses later
     outcome_priority_map <- c(
       "Study Label" = 1,
-      "Population" = 2,
-      "Outcome" = 3,
-      "Estimate (95% CI)" = 4,
-      "Age Range" = 5,
-      "Vaccine Formulation for Intervention Arm" = 6,
-      "Vaccine Formulation for Comparator Arm" = 7,
+      "Outcome" = 2,
+      "Estimate (95% CI)" = 3,
+      "Population" = 4,
+      "Vaccine Formulation for Intervention Arm" = 5,
+      "Vaccine Formulation for Comparator Arm" = 6,
+      "Age Range" = 7,
       "Study Design" = 8,
       "Definition [of outcome]" = 9,
       "Risk of Bias" = 10,
@@ -927,7 +927,7 @@ server <- function(input, output, session) {
       options = list(
         # dom = "<'top' p> t <'bottom' i p>",
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
-        dom = "<'top' p f> t <'bottom' i p>",
+        dom = "<'top' f> t <'bottom' i p>",
         pageLength = 25,
 
         # Must be set for the header row to freeze
