@@ -10,6 +10,8 @@ filter_message_css <- "
     color: #003366;
     border-radius: 4px;
     margin-bottom: 20px;
+    
+    
   }
 "
 
@@ -40,5 +42,27 @@ filter_message_css <- paste0(
     justify-content: space-between;
     align-items: center;
   }
+  
+  .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background-color: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-top: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive .dataTables_wrapper {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.table-responsive .dataTables_scrollBody {
+  max-width: 100%;
+  overflow-x: auto;
+}
   '
 )

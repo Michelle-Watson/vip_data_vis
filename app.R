@@ -164,7 +164,8 @@ ui <- fluidPage(
               class = "btn-sm"
             )
           ),
-          DTOutput("studies_table")
+          # DTOutput("studies_table")
+          div(class = "table-responsive", DTOutput("studies_table"))
         )
       )
     ),
@@ -209,7 +210,8 @@ ui <- fluidPage(
               class = "btn-sm"
             )
           ),
-          DTOutput("outcomes_table")
+          # DTOutput("outcomes_table")
+          div(class = "table-responsive", DTOutput("outcomes_table"))
         )
       )
     )
@@ -424,6 +426,53 @@ server <- function(input, output, session) {
     # Build columnDefs
     col_defs <- make_col_defs(display, desired_widths)
 
+    # Add responsive priorities: lower = more important, collapses later
+    priority_map <- c(
+      "Study" = 1,
+      "Virus" = 2,
+      "Population" = 3,
+      "Total N" = 4,
+      "Study Design" = 5,
+      "Domains Reported" = 6,
+      "Risk of Bias" = 7,
+      "Study Period" = 8,
+      "Country/Region" = 9,
+      "Funding Source" = 10,
+      "Age (years)" = 11,
+      "Setting Details" = 12,
+      "Vaccine Products" = 13,
+      "Journal" = 14,
+      "PMID" = 15,
+      "PMCID" = 16,
+      "DOI" = 17,
+      "Link" = 18,
+      "Study Design Specifics" = 19,
+      "Study Period Start" = 20,
+      "Study Period End" = 21
+    )
+
+    # Keep only priorities for columns that are actually present
+    present <- intersect(names(priority_map), names(display))
+
+    for (col in present) {
+      col_defs <- c(
+        col_defs,
+        list(list(
+          targets = col,
+          responsivePriority = as.integer(priority_map[[col]])
+        ))
+      )
+    }
+
+    # Study should always stay visible, even if other columns collapse
+    col_defs <- c(
+      col_defs,
+      list(list(
+        targets = "Study",
+        className = "all"
+      ))
+    )
+
     # Append definitions for the hidden sorting column
     # DT column indices are 0‑based
     total_n_visible_idx <- which(names(display) == "Total N") - 1
@@ -457,11 +506,23 @@ server <- function(input, output, session) {
       rownames = FALSE,
       escape = FALSE, # don't escape HTML chars
       filter = "none", # no column filters yet
+      extensions = c("FixedColumns", "Responsive"),
+      # extensions = "FixedColumns",
+      # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' p f> t <'bottom' i p>",
         pageLength = 50,
-        scrollX = FALSE,
+        # scrollX = FALSE,
+        scrollX = TRUE,
+
+        # Enable internal vertical + horizontal scrolling. NEED to set vetical heigh for table to freeze the top row
+        scrollY = "69vh",
+        scrollX = TRUE,
+
+        # Freeze the first column
+        fixedColumns = list(leftColumns = 1),
+
         autoWidth = FALSE,
         columnDefs = col_defs
       )
@@ -768,12 +829,14 @@ server <- function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       filter = "none",
+      # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
         # dom = "<'top' p> t <'bottom' i p>",
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' p f> t <'bottom' i p>",
         pageLength = 25,
-        scrollX = FALSE,
+        # scrollX = FALSE,
+        scrollX = TRUE,
         autoWidth = FALSE,
         columnDefs = col_defs
       )
