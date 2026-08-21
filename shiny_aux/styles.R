@@ -71,23 +71,8 @@ filter_message_css <- paste0(
     width: 100% !important;
     box-sizing: border-box;
   }
-
-  .table-responsive .dataTables_scrollBody {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
-  /* Remove bslib resize handle and its helper text */
-  .bslib-sidebar-resize-handle {
-    display: none !important;
-  }
-  )"
-)
-
-
-filter_message_css <- paste0(
-  filter_message_css,
-  r"(
+  
+  /* DataTables mobile adjustments */
   @media (max-width: 576px) {
     .dataTables_wrapper .top {
       display: flex;
@@ -106,6 +91,16 @@ filter_message_css <- paste0(
       max-width: 200px;
       display: inline-block;
     }
+  }
+  
+  .table-responsive .dataTables_scrollBody {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Remove bslib resize handle and its helper text */
+  .bslib-sidebar-resize-handle {
+    display: none !important;
   }
   )"
 )
