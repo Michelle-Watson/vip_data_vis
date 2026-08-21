@@ -151,12 +151,54 @@ ui <- fluidPage(
         "The systematic review includes studies published between January 2020 - July 2026."
       )
     ),
+    # tabPanel(
+    #   "Studies",
+    #   filterSidebarLayout(
+    #     sidebar_id = "studies_sidebar",
+    #     toggle_btn = FALSE,
+    #     sidebar_content = tagList(
+    #       checkboxInput(
+    #         "lightweight",
+    #         "Lightweight view (hide article details)",
+    #         value = TRUE
+    #       ),
+    #       div(
+    #         style = "margin-bottom: 8px;",
+    #         downloadButton(
+    #           "downloadFilteredStudies",
+    #           "Download filtered view",
+    #           class = "btn-sm"
+    #         )
+    #       ),
+    #       simpleFiltersUI("simple_filters"),
+    #       advancedFiltersUI("advanced")
+    #     ),
+    #     main_content = tagList(
+    #       tags$div(
+    #         class = "filter-message",
+    #         style = "margin-bottom: 10px; font-size: 15px;",
+    #         textOutput("study_count")
+    #       ),
+    #       div(
+    #         style = "display: flex; justify-content: flex-end; margin: 12px 0 8px 0;",
+    #         downloadButton(
+    #           "downloadFull",
+    #           "Download Study Characteristics",
+    #           class = "btn-sm"
+    #         )
+    #       ),
+    #       # DTOutput("studies_table")
+    #       div(class = "table-responsive", DTOutput("studies_table"))
+    #     )
+    #   )
+    # )
     tabPanel(
       "Studies",
-      filterSidebarLayout(
-        sidebar_id = "studies_sidebar",
-        toggle_btn = FALSE,
-        sidebar_content = tagList(
+      layout_sidebar(
+        #height = "calc(67vh + 140px)",
+        sidebar = sidebar(
+          width = 300,
+          resizable = FALSE,
           checkboxInput(
             "lightweight",
             "Lightweight view (hide article details)",
@@ -173,7 +215,13 @@ ui <- fluidPage(
           simpleFiltersUI("simple_filters"),
           advancedFiltersUI("advanced")
         ),
-        main_content = tagList(
+        # Main content
+        tags$div(
+          class = "main-content",
+          # tags$p(
+          #   style = "color: #666; font-size: 12px; margin-bottom: 6px;",
+          #   "Use the arrow button to show or hide the filter sidebar."
+          # ),
           tags$div(
             class = "filter-message",
             style = "margin-bottom: 10px; font-size: 15px;",
@@ -187,18 +235,63 @@ ui <- fluidPage(
               class = "btn-sm"
             )
           ),
-          # DTOutput("studies_table")
           div(class = "table-responsive", DTOutput("studies_table"))
         )
       )
     ),
 
+    # tabPanel(
+    #   "Outcomes",
+    #   filterSidebarLayout(
+    #     sidebar_id = "outcomes_sidebar",
+    #     toggle_btn = FALSE,
+    #     sidebar_content = tagList(
+    #       checkboxInput(
+    #         "outcome_lightweight",
+    #         "Lightweight view (hide counts, outcome definition, factors adjusted)",
+    #         value = TRUE
+    #       ),
+    #       div(
+    #         style = "margin-bottom: 8px;",
+    #         downloadButton(
+    #           "downloadFilteredOutcomes",
+    #           "Download filtered view",
+    #           class = "btn-sm"
+    #         )
+    #       ),
+    #       outcomeSimpleFiltersUI("outcome_simple_filters"),
+    #       advancedFiltersUI("outcome_advanced")
+    #     ),
+    #     main_content = tagList(
+    #       tags$div(
+    #         class = "filter-message",
+    #         style = "margin-bottom: 10px; font-size: 15px;",
+    #         textOutput("outcome_count")
+    #       ),
+    #       div(
+    #         style = "display: flex; align-items: center; justify-content: space-between; margin: 12px 0 8px 0; gap: 10px;",
+    #         tags$span(
+    #           style = "color: #888; font-size: 12px; font-style: italic;",
+    #           "Ecological studies, and other studies, may not appear in the outcomes view if they did not report an estimate. All extracted data remains available for download."
+    #         ),
+    #         downloadButton(
+    #           "downloadOutcomes",
+    #           "Download Outcomes",
+    #           class = "btn-sm"
+    #         )
+    #       ),
+    #       # DTOutput("outcomes_table")
+    #       div(class = "table-responsive", DTOutput("outcomes_table"))
+    #     )
+    #   )
+    # )
     tabPanel(
       "Outcomes",
-      filterSidebarLayout(
-        sidebar_id = "outcomes_sidebar",
-        toggle_btn = FALSE,
-        sidebar_content = tagList(
+      layout_sidebar(
+        # height = "calc(59vh + 170px)",
+        sidebar = sidebar(
+          width = 300,
+          resizable = FALSE,
           checkboxInput(
             "outcome_lightweight",
             "Lightweight view (hide counts, outcome definition, factors adjusted)",
@@ -215,7 +308,13 @@ ui <- fluidPage(
           outcomeSimpleFiltersUI("outcome_simple_filters"),
           advancedFiltersUI("outcome_advanced")
         ),
-        main_content = tagList(
+        # Main content
+        tags$div(
+          class = "main-content",
+          # tags$p(
+          #   style = "color: #666; font-size: 12px; margin-bottom: 6px;",
+          #   "Use the arrow button to show or hide the filter sidebar."
+          # ),
           tags$div(
             class = "filter-message",
             style = "margin-bottom: 10px; font-size: 15px;",
@@ -233,11 +332,10 @@ ui <- fluidPage(
               class = "btn-sm"
             )
           ),
-          # DTOutput("outcomes_table")
           div(class = "table-responsive", DTOutput("outcomes_table"))
         )
       )
-    )
+    ),
   )
 )
 
@@ -556,7 +654,9 @@ server <- function(input, output, session) {
         scrollX = TRUE,
 
         # Enable internal vertical + horizontal scrolling. NEED to set vetical heigh for table to freeze the top row
-        scrollY = "67vh", #69 vh?
+        # scrollY = "67vh", #69 vh?
+        # scrollY = "calc(100vh - 190px)",
+        scrollY = "66vh",
         scrollX = TRUE,
 
         # Freeze the first column
@@ -931,7 +1031,9 @@ server <- function(input, output, session) {
         pageLength = 25,
 
         # Must be set for the header row to freeze
-        scrollY = "calc(59vh - 1px)",
+        # scrollY = "calc(59vh - 1px)",
+        # scrollY = "calc(100vh - 190px)",
+        scrollY = "64vh",
         scrollX = TRUE,
         # scrollX = FALSE,
 

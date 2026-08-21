@@ -10,68 +10,8 @@ filter_message_css <- "
     color: #003366;
     border-radius: 4px;
     margin-bottom: 20px;
-    
-    
   }
 "
-
-filter_message_css <- paste0(
-  filter_message_css,
-  '
-  /* Sidebar collapse */
-  #studies_layout.sidebar-hidden .col-sm-3 {
-    display: none !important;
-  }
-  #studies_layout.sidebar-hidden .col-sm-9 {
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-  }
-  .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .filter-row > [class*="col-sm"] {
-    display: flex;
-    flex-direction: column;
-  }
-  .filter-row .filter-message {
-    margin-top: auto;
-  }
-  .dataTables_wrapper .top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  background-color: #ffffff;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  margin-top: 10px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table-responsive .dataTables_wrapper {
-  width: 100% !important;
-  box-sizing: border-box;
-}
-
-.table-responsive .dataTables_scrollBody {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.table-responsive .dataTables_wrapper {
-  width: 100% !important;
-  box-sizing: border-box;
-}
-  '
-)
-
 
 filter_message_css <- paste0(
   filter_message_css,
@@ -83,56 +23,89 @@ filter_message_css <- paste0(
     top: 0;
     z-index: 999;
     background-color: #ffffff !important;
-    padding-right: 160px;   /* keep tabs clear of the logo */
+    padding-right: 160px;
     border-bottom: 1px solid #dee2e6;
   }
 
+  .top-controls {
+    position: fixed;
+    top: 0;
+    right: 24px;
+    height: 41px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+  }
+
   .app-logo {
-    top: 4px;
-    height: 35px;
+    height: 30px;
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    margin-top: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .bslib-sidebar-layout > .sidebar {
+    background-color: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+    margin-top: 3rem;
+    max-height: 90vh;
+  }
+  
+  
+
+  .table-responsive .dataTables_wrapper {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .table-responsive .dataTables_scrollBody {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Remove bslib resize handle and its helper text */
+  .bslib-sidebar-resize-handle {
+    display: none !important;
   }
   )"
 )
 
-# .app-logo {
-#   position: fixed;
-#   top: 4px;
-#   right: 24px;
-#   height: 35px;
-#   z-index: 1000;
-# }
 
 filter_message_css <- paste0(
   filter_message_css,
   r"(
-.top-controls {
-  position: fixed;
-  top: 0;               /* align with nav bar top */
-  right: 24px;
-  height: 41px;         /* same height as the nav tabs bar */
-  display: flex;
-  align-items: center;  /* vertically centre inside the nav bar */
-  gap: 12px;
-  z-index: 1000;
-}
+  @media (max-width: 576px) {
+    .dataTables_wrapper .top {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+    }
 
-.app-logo {
-  height: 30px;         /* smaller than the nav bar height */
-}
+    .dataTables_filter {
+      text-align: right;
+    }
 
-
-)"
-)
-
-filter_message_css <- paste0(
-  filter_message_css,
-  r"(
-  /* Sidebar internal scroll: only when content is taller than viewport */
-  .sidebar-scroll {
-    max-height: calc(100vh - 117px);
-    overflow-y: auto;
-    padding-right: 5px;
-    -webkit-overflow-scrolling: touch;
+    .dataTables_filter input {
+      width: 100%;
+      max-width: 200px;
+      display: inline-block;
+    }
   }
   )"
 )

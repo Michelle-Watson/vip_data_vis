@@ -183,7 +183,7 @@ simpleFiltersUI <- function(id) {
         style = "display: flex; align-items: baseline; gap: 8px;",
         actionLink(
           ns("clear_simple"),
-          label = "Clear all simple filters\U1F9F9",
+          label = "Clear filters\U1F9F9",
           style = "color: #888; text-decoration: none; cursor: pointer;"
         ),
         textOutput(ns("cleared_msg"))
@@ -250,7 +250,7 @@ outcomeSimpleFiltersUI <- function(id) {
         style = "display: flex; align-items: baseline; gap: 8px;",
         actionLink(
           ns("clear_simple"),
-          label = "Clear all simple filters\U1F9F9",
+          label = "Clear filters\U1F9F9",
           style = "color: #888; text-decoration: none; cursor: pointer;"
         ),
         textOutput(ns("cleared_msg"))
