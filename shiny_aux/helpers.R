@@ -86,7 +86,8 @@ filterSidebarLayout <- function(
     sidebarPanel(
       id = sidebar_id,
       width = 3,
-      sidebar_content
+      # sidebar_content
+      div(class = "sidebar-scroll", sidebar_content)
     ),
     mainPanel(
       width = 9,

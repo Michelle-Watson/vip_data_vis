@@ -121,8 +121,18 @@ filter_message_css <- paste0(
 }
 
 
-
-
-
 )"
+)
+
+filter_message_css <- paste0(
+  filter_message_css,
+  r"(
+  /* Sidebar internal scroll: only when content is taller than viewport */
+  .sidebar-scroll {
+    max-height: calc(100vh - 117px);
+    overflow-y: auto;
+    padding-right: 5px;
+    -webkit-overflow-scrolling: touch;
+  }
+  )"
 )

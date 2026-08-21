@@ -69,6 +69,8 @@ outcome_rob_long <- outcome_data %>%
 
 # ---- User Interface ----
 ui <- fluidPage(
+  # experiment with bootstrap themes. ver 3
+  # theme = bs_theme(version = 5, bootswatch = "flatly")
   # theme = bs_theme(version = 5),
   useShinyjs(),
   # titlePanel("VIP 2026-2027"),
@@ -242,6 +244,7 @@ ui <- fluidPage(
 # ---- Server logic ----
 server <- function(input, output, session) {
   # Uncomment or bootstrap style
+  # bslib::bs_themer()
   # observe({
   #   session$setCurrentTheme(
   #     if (input$theme_mode == "dark") {
@@ -928,7 +931,7 @@ server <- function(input, output, session) {
         pageLength = 25,
 
         # Must be set for the header row to freeze
-        scrollY = "59vh",
+        scrollY = "calc(59vh - 1px)",
         scrollX = TRUE,
         # scrollX = FALSE,
 
