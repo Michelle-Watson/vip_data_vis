@@ -69,11 +69,28 @@ outcome_rob_long <- outcome_data %>%
 
 # ---- User Interface ----
 ui <- fluidPage(
+  # theme = bs_theme(version = 5),
   useShinyjs(),
   # titlePanel("VIP 2026-2027"),
-  tags$img(
-    src = "VIP_Logo_Horizontal.png",
-    class = "app-logo"
+  # tags$div(
+  #   class = "top-controls",
+  #   input_dark_mode(id = "theme_mode", mode = "light"),
+  #   tags$img(
+  #     src = "VIP_Logo_Horizontal.png",
+  #     class = "app-logo"
+  #   )
+  # )
+  tags$div(
+    class = "top-controls",
+    # actionLink(
+    #   inputId = "toggle_dark",
+    #   label = icon("moon"),
+    #   class = "dark-toggle"
+    # ),
+    tags$img(
+      src = "VIP_Logo_Horizontal.png",
+      class = "app-logo"
+    )
   ),
   tags$style(HTML(filter_message_css)),
   tabsetPanel(
@@ -224,6 +241,21 @@ ui <- fluidPage(
 
 # ---- Server logic ----
 server <- function(input, output, session) {
+  # Uncomment or bootstrap style
+  # observe({
+  #   session$setCurrentTheme(
+  #     if (input$theme_mode == "dark") {
+  #       bs_theme(version = 5, bootswatch = "darkly")
+  #     } else {
+  #       bs_theme(version = 5)
+  #     }
+  #   )
+  # })
+
+  # observeEvent(input$toggle_dark, {
+  #   shinyjs::toggleClass(selector = "body", class = "dark-mode")
+  # })
+
   observeEvent(input$toggle_studies_sidebar, {
     shinyjs::toggle("studies_sidebar", anim = TRUE)
   })

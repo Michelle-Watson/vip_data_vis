@@ -88,11 +88,41 @@ filter_message_css <- paste0(
   }
 
   .app-logo {
-    position: fixed;
     top: 4px;
-    right: 24px;
     height: 35px;
-    z-index: 1000;
   }
   )"
+)
+
+# .app-logo {
+#   position: fixed;
+#   top: 4px;
+#   right: 24px;
+#   height: 35px;
+#   z-index: 1000;
+# }
+
+filter_message_css <- paste0(
+  filter_message_css,
+  r"(
+.top-controls {
+  position: fixed;
+  top: 0;               /* align with nav bar top */
+  right: 24px;
+  height: 41px;         /* same height as the nav tabs bar */
+  display: flex;
+  align-items: center;  /* vertically centre inside the nav bar */
+  gap: 12px;
+  z-index: 1000;
+}
+
+.app-logo {
+  height: 30px;         /* smaller than the nav bar height */
+}
+
+
+
+
+
+)"
 )
