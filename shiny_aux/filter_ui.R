@@ -89,7 +89,8 @@ popTypeFilterUI <- function(id) {
       label = NULL,
       choices = c(
         "Immunocompromised" = "IC",
-        "High‑risk" = "HR",
+        # "High‑risk" = "HR",
+        "Other co-occurring conditions" = "HR",
         "Pregnant" = "P",
         "Healthcare personnel" = "H"
       ),

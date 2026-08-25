@@ -199,6 +199,7 @@ ui <- fluidPage(
         sidebar = sidebar(
           width = 300,
           resizable = FALSE,
+          open = list(desktop = "open", mobile = "closed"),
           checkboxInput(
             "lightweight",
             "Lightweight view (hide article details)",
@@ -292,6 +293,7 @@ ui <- fluidPage(
         sidebar = sidebar(
           width = 300,
           resizable = FALSE,
+          open = list(desktop = "open", mobile = "closed"),
           checkboxInput(
             "outcome_lightweight",
             "Lightweight view (hide counts, outcome definition, factors adjusted)",
@@ -673,7 +675,19 @@ server <- function(input, output, session) {
       "All_Study_Characteristics.xlsx"
     },
     content = function(file) {
-      file.copy(char_path, file)
+      wb_sheets <- readxl::excel_sheets(char_path)
+      all_data <- lapply(wb_sheets, function(s) {
+        read_excel(char_path, sheet = s)
+      })
+      names(all_data) <- wb_sheets
+
+      cols_to_remove <- c("char_row_id", "Covidence ID")
+
+      all_data <- lapply(all_data, function(df) {
+        drop_columns(df, cols_to_remove)
+      })
+
+      writexl::write_xlsx(all_data, file)
     }
   )
   output$downloadFilteredStudies <- downloadHandler(
@@ -689,6 +703,13 @@ server <- function(input, output, session) {
 
       # Replace the main sheet with the filtered data (all columns)
       all_data[["Study Characteristics"]] <- filtered_data()
+
+      # Remove columns from every sheet in the export
+      cols_to_remove <- c("char_row_id", "Covidence ID")
+
+      all_data <- lapply(all_data, function(df) {
+        drop_columns(df, cols_to_remove)
+      })
 
       writexl::write_xlsx(all_data, file)
     }
@@ -1049,7 +1070,23 @@ server <- function(input, output, session) {
   output$downloadOutcomes <- downloadHandler(
     filename = function() "Filtered_Outcomes.xlsx",
     content = function(file) {
-      write_xlsx(processed_outcome_data(), file)
+      filt_df <- as.data.frame(
+        filtered_outcome_data(),
+        stringsAsFactors = FALSE
+      )
+
+      cols_to_remove <- c(
+        "char_row_id",
+        "row_id",
+        "Study Label with subgroup indication",
+        "Covidence ID",
+        "Minimum Age (days)",
+        "Maximum Age (days)"
+      )
+
+      filt_df <- drop_columns(filt_df, cols_to_remove)
+
+      writexl::write_xlsx(filt_df, file)
     }
   )
   output$downloadFilteredOutcomes <- downloadHandler(
@@ -1066,13 +1103,25 @@ server <- function(input, output, session) {
         stringsAsFactors = FALSE
       )
 
-      # 3. Build a workbook with ONLY the filtered sheet + Footnotes
+      # 3. Remove unwanted columns from the filtered outcomes sheet
+      cols_to_remove <- c(
+        "char_row_id",
+        "row_id",
+        "Study Label with subgroup indication",
+        "Covidence ID",
+        "Minimum Age (days)",
+        "Maximum Age (days)"
+      )
+
+      filt_df <- drop_columns(filt_df, cols_to_remove)
+
+      # 4. Build a workbook with ONLY the cleaned filtered sheet + Footnotes
       out <- list(
         `Filtered_Outcomes` = filt_df,
         Footnotes = footnotes_df
       )
 
-      # 4. Write the new workbook
+      # 5. Write the new workbook
       writexl::write_xlsx(out, file)
     }
   )

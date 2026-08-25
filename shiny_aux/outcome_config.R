@@ -37,21 +37,11 @@ outcome_column_order <- c(
   "Study Label",
   "Study Label with subgroup indication",
   "Covidence ID",
-  "Type of Estimate",
-  "Study Design",
-  "Population",
-  "Age Range",
-  "Minimum Age",
-  "Maximum Age",
-  "Study Period",
-  "Study Period Start",
-  "Study Period End",
-  # "Vaccine",
-  "Comparison", # renamed
   "Outcome",
-  "Definition [of outcome]",
+  "Estimate (95% CI)",
   "Follow-up",
   "Follow-up (days)",
+
   "Intervention",
   "Vaccine Formulation for Intervention Arm",
   "Strain Targeted by Intervention Vaccine",
@@ -62,13 +52,29 @@ outcome_column_order <- c(
   "Strain Targeted by Comparator Vaccine",
   "Number of events in comparator arm",
   "Sample size comparator",
+
+  "Type of Estimate",
+
+  "Population",
+  "Age Range",
+  "Study Design",
+  "Risk of Bias",
+  "Minimum Age",
+  "Maximum Age",
+  "Study Period",
+  "Study Period Start",
+  "Study Period End",
+  # "Vaccine",
+  "Comparison", # renamed
+
+  "Definition [of outcome]",
+
   "Number of events (ecological studies)",
   "N total (ecological studies)",
-  "Estimate (95% CI)",
+
   "Estimate Type",
   "Definition [of outcome]",
-  "Factors Adjusted",
-  "Risk of Bias"
+  "Factors Adjusted"
 )
 
 outcome_desired_widths <- c(

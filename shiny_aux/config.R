@@ -68,7 +68,8 @@ pop_code_to_full <- c(
   "I" = "Infants",
   "C" = "Children",
   "IC" = "Immunocompromised",
-  "HR" = "High-risk",
+  # "HR" = "High-risk",
+  "HR" = "Other co-occurring conditions",
   "P" = "Pregnant",
   "H" = "Healthcare personnel"
 )
