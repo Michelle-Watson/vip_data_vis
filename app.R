@@ -67,6 +67,80 @@ outcome_rob_long <- outcome_data %>%
   rename(`Overall Risk` = `Risk of Bias`)
 
 
+# Load footnotes from both source workbooks
+char_footnotes <- read_excel(char_path, sheet = "Footnotes", col_types = "text")
+outcome_footnotes <- read_excel(
+  outcome_path,
+  sheet = "Footnotes",
+  col_types = "text"
+)
+
+combined_footnotes <- bind_rows(char_footnotes, outcome_footnotes) %>%
+  distinct(Term, Definition)
+
+# print(combined_footnotes)
+
+# Custom definitions table (used on About page)
+# Custom definitions table for the About page
+custom_definitions <- tribble(
+  ~Term                                                                     , ~Definition                                                                                                                                                                                                                                                                                      ,
+  "OA"                                                                      , "Older adults (≥65 years)"                                                                                                                                                                                                                                                                       ,
+  "A"                                                                       , "Adults (19-64 years)"                                                                                                                                                                                                                                                                           ,
+  "I"                                                                       , "Infants (<12 months)"                                                                                                                                                                                                                                                                           ,
+  "C"                                                                       , "Children (12 months-18 years)"                                                                                                                                                                                                                                                                  ,
+  "IC"                                                                      , "Immunocompromised"                                                                                                                                                                                                                                                                              ,
+  "HR"                                                                      , "Other co-occurring conditions (broader than immunocompromised; includes other chronic conditions)"                                                                                                                                                                                              ,
+  "P"                                                                       , "Pregnant individuals (and infants born after vaccination during pregnancy)"                                                                                                                                                                                                                     ,
+  "H"                                                                       , "Healthcare personnel"                                                                                                                                                                                                                                                                           ,
+  "Older Adults"                                                            , "Older adults (≥65 years)"                                                                                                                                                                                                                                                                       ,
+  "Adults"                                                                  , "Adults (19-64 years)"                                                                                                                                                                                                                                                                           ,
+  "Infants"                                                                 , "Infants (<12 months)"                                                                                                                                                                                                                                                                           ,
+  "Children"                                                                , "Children (12 months-18 years)"                                                                                                                                                                                                                                                                  ,
+  "Immunocompromised"                                                       , "Immunocompromised"                                                                                                                                                                                                                                                                              ,
+  "Other co-occurring conditions"                                           , "Other co-occurring conditions (broader than immunocompromised; includes other chronic conditions)"                                                                                                                                                                                              ,
+  "Pregnant"                                                                , "Pregnant individuals (and infants born after vaccination during pregnancy)"                                                                                                                                                                                                                     ,
+  "Healthcare personnel"                                                    , "Healthcare personnel"                                                                                                                                                                                                                                                                           ,
+  "Study Period"                                                            , "Season range from the outcomes sheet, formatted as Start - End. NR if not reported."                                                                                                                                                                                                            ,
+  "Study Period Start"                                                      , "Start season/year from the outcomes sheet."                                                                                                                                                                                                                                                     ,
+  "Study Period End"                                                        , "End season/year from the outcomes sheet."                                                                                                                                                                                                                                                       ,
+  "Total N"                                                                 , "Total sample size (may be number of participants, mother‑infant pairs, or reports)"                                                                                                                                                                                                             ,
+  "Age Range"                                                               , "Displayed as X - Y unit; - = not reported"                                                                                                                                                                                                                                                      ,
+  "Minimum Age"                                                             , "Raw minimum age from data; - = not reported"                                                                                                                                                                                                                                                    ,
+  "Maximum Age"                                                             , "Raw maximum age from data; - = not reported"                                                                                                                                                                                                                                                    ,
+  "Minimum Age (days)"                                                      , "Minimum age converted to days (0 = no lower bound). Used for slider filtering only."                                                                                                                                                                                                            ,
+  "Maximum Age (days)"                                                      , "Maximum age converted to days (36525 ≈ 100 years = no upper bound). Used for slider filtering only."                                                                                                                                                                                            ,
+  "Vaccine Formulation for Comparator Arm"                                  , "'Not Vaccinated', 'No Comparator', 'Ineligible Comparator', 'No Vaccine', 'No Updated Dose', 'Unknown Status', and 'Historical Comparator' are comparator descriptions. 'Hepatitis A' and 'MenC' are non-influenza/COVID/RSV vaccine comparators. 'NR' means the information was not reported." ,
+  "Strain Targeted by Intervention Vaccine"                                 , "Shortened strain name from strain map; - = not specified"                                                                                                                                                                                                                                       ,
+  "Strain Targeted by Comparator Vaccine"                                   , "Shortened strain name from strain map; - = not specified"                                                                                                                                                                                                                                       ,
+  "Sample size intervention"                                                , "NR = not reported"                                                                                                                                                                                                                                                                              ,
+  "Number of events in intervention arm"                                    , "NR = not reported; 0 = zero events"                                                                                                                                                                                                                                                             ,
+  "Number of events in comparator arm"                                      , "NR = not reported; 0 = zero events"                                                                                                                                                                                                                                                             ,
+  "Number of events (ecological studies)"                                   , "NA (not an ecological study) = not applicable for non-ecological designs; NR = not reported (ecological study missing data)"                                                                                                                                                                    ,
+  "N total (ecological studies)"                                            , "NA (not an ecological study) = not applicable for non-ecological designs; NR = not reported (ecological study missing data)"                                                                                                                                                                    ,
+  "Risk of Bias"                                                            , "Assessment in Progress = bias assessment not yet completed or field was empty"                                                                                                                                                                                                                  ,
+  "Risk of Bias domains marked Some Concerns (RoB2) or Moderate (ROBINS‑I)" , "Specific domains that were rated as Some Concerns (RoB2) or Moderate (ROBINS‑I). Assessment in Progress if empty."                                                                                                                                                                              ,
+  "Risk of Bias domains marked High (RoB2) or Serious/Critical (ROBINS‑I)"  , "Specific domains that were rated as High (RoB2) or Serious/Critical (ROBINS‑I). Assessment in Progress if empty."                                                                                                                                                                               ,
+  "Gestational Age Min (weeks)"                                             , "Minimum gestational age in weeks (for pregnant populations). NA if not reported."                                                                                                                                                                                                               ,
+  "Gestational Age Max (weeks)"                                             , "Maximum gestational age in weeks (for pregnant populations). NA if no upper limit or not reported."                                                                                                                                                                                             ,
+  "Gestational Age Display"                                                 , "Display string for gestational age range (e.g., 'GA: 14-27w'). '-' for non-pregnant populations."                                                                                                                                                                                               ,
+  "Estimate (95% CI)"                                                       , "Estimates rounded to 2 decimal places. NE (...) and NR (...) are shown as entered"                                                                                                                                                                                                              ,
+  "Estimate Type"                                                           , "Type of estimate (e.g., OR = Odds Ratio, VE = Vaccine Effectiveness, IRR = Incidence Rate Ratio, TR = Time Ratio, CR = Cum­ulative Risk). NR if not reported."                                                                                                                                  ,
+  "Point Estimate"                                                          , "Numeric point estimate (parsed)."                                                                                                                                                                                                                                                               ,
+  "CI Lower"                                                                , "Numeric lower CI bound (parsed)."                                                                                                                                                                                                                                                               ,
+  "CI Upper"                                                                , "Numeric upper CI bound (parsed)."                                                                                                                                                                                                                                                               ,
+  "Definition [of outcome]"                                                 , "Case definition used for the outcome."                                                                                                                                                                                                                                                          ,
+  "Factors Adjusted"                                                        , "NA (RCT) = no adjustment required; Unadjusted = no adjustment variables entered; - = Estimate not calculable; otherwise comma‑separated list"                                                                                                                                                   ,
+  "Study Design"                                                            , "'Non‑randomized comparative' is renamed to 'Observational - with comparator group'"                                                                                                                                                                                                             ,
+  "Study Design Specifics"                                                  , "Additional design details from extractors (e.g., post‑hoc, subanalysis); NR if not provided"                                                                                                                                                                                                    ,
+  "Type of Outcome"                                                         , "Analysis category for filtering: Adjusted Comparative, Unadjusted Comparative, Single Arm, Ecological."                                                                                                                                                                                         ,
+  "Vaccine name shortening"                                                 , "Long vaccine descriptions are shortened to formulation abbreviations (e.g., IIV4, BNT162b2); brand names appear in separate columns"                                                                                                                                                            ,
+  "Follow-up"                                                               , "Follow-up time as reported in the consensus sheet. NR if not reported."                                                                                                                                                                                                                         ,
+  "Follow-up (days)"                                                        , "Follow-up time converted to days. Used for filtering/sorting if needed."                                                                                                                                                                                                                        ,
+  "Subgroup letter"                                                         , "Appended to study label when a row reports a subgroup already covered by another row – alerts reader to avoid double‑counting"                                                                                                                                                                  ,
+  "Notes 1"                                                                 , "Free‑text notes from the extractor (e.g. narrative summary)"                                                                                                                                                                                                                                    ,
+  "Notes 2"                                                                 , "Free‑text notes from the extractor (e.g. narrative summary)"
+)
+
 # ---- User Interface ----
 ui <- fluidPage(
   # experiment with bootstrap themes. ver 3
@@ -98,57 +172,84 @@ ui <- fluidPage(
   tabsetPanel(
     tabPanel(
       "About",
-      tags$h2(
-        tags$b("Welcome to the Vaccine Integrity Project!")
-      ),
-      tags$p(
-        style = "color: #c865ab;",
-        "Questions/comments/concerns about this application? Please e‑mail Michelle Watson at",
-        tags$a(
-          href = "mailto:michellealiciawatson@gmail.com",
-          "michellealiciawatson@gmail.com",
-          style = "color: #c865ab;" # match the pink color
-        )
-      ),
-      # New paragraph with the Evidence Base link
-      tags$p(
-        style = "color: #c865ab;",
-        tags$a(
-          href = "https://vaxintegrity.cidrap.umn.edu/evidence-reviews/2025-2026-respiratory-season",
-          "The Evidence Base for 2025-26 Respiratory Season Immunizations",
-          style = "color: #0066cc;"
-        )
-      ),
-      tags$h2(
-        tags$b("About the Vaccine Integrity Project:")
-      ),
-      tags$p(
-        "CIDRAP's Vaccine Integrity Project is an initiative dedicated to safeguarding vaccine use in the U.S. so that it remains grounded in the best available science, free from external influence, and focused on optimizing protection of individuals, families, and communities against vaccine-preventable diseases."
-      ),
-      tags$p(
-        "The Vaccine Integrity Project issued its final report from the planning phase summarizing its findings from the exploratory phase, focused on what is needed to ensure the integrity of the U.S. vaccine system, including vaccine evaluations and clinical guidelines based on rigorous and timely reviews."
-      ),
-      tags$p(
-        "The Vaccine Integrity Project is focusing on actions that stemmed from its earlier work:"
-      ),
-      tags$ul(
-        tags$li(
-          tags$strong("Implementing a rapid response accountability effort."),
-          " In response to misleading and inaccurate claims, the Vaccine Integrity Project aims to launch a rapid response communications initiative to monitor and address vaccine- and public health-related misinformation originating from official, federal sources in real time."
+      tags$div(
+        class = "about-page-content",
+        tags$div(
+          class = "about-logo-card",
+          tags$img(src = "VIP_Logo_Horizontal.png", class = "about-logo")
         ),
-        tags$li(
-          tags$strong(
-            "Developing and disseminating the evidence base for immunization recommendations and clinical consideration."
+        tags$h2(
+          tags$b("Welcome to the Vaccine Integrity Project!")
+        ),
+        tags$p(
+          style = "color: #c865ab;",
+          "Questions/comments/concerns about this application? Please e‑mail Michelle Watson at",
+          tags$a(
+            href = "mailto:michellealiciawatson@gmail.com",
+            "michellealiciawatson@gmail.com",
+            style = "color: #c865ab;" # match the pink color
+          )
+        ),
+        # New paragraph with the Evidence Base link
+        tags$p(
+          style = "color: #c865ab;",
+          tags$a(
+            href = "https://vaxintegrity.cidrap.umn.edu/evidence-reviews/2025-2026-respiratory-season",
+            "The Evidence Base for 2025-26 Respiratory Season Immunizations",
+            style = "color: #0066cc;"
+          )
+        ),
+        tags$h2(
+          tags$b("About the Vaccine Integrity Project:")
+        ),
+        tags$p(
+          "CIDRAP's Vaccine Integrity Project is an initiative dedicated to safeguarding vaccine use in the U.S. so that it remains grounded in the best available science, free from external influence, and focused on optimizing protection of individuals, families, and communities against vaccine-preventable diseases."
+        ),
+        tags$p(
+          "The Vaccine Integrity Project issued its final report from the planning phase summarizing its findings from the exploratory phase, focused on what is needed to ensure the integrity of the U.S. vaccine system, including vaccine evaluations and clinical guidelines based on rigorous and timely reviews."
+        ),
+        tags$p(
+          "The Vaccine Integrity Project is focusing on actions that stemmed from its earlier work:"
+        ),
+        tags$ul(
+          tags$li(
+            tags$strong("Implementing a rapid response accountability effort."),
+            " In response to misleading and inaccurate claims, the Vaccine Integrity Project aims to launch a rapid response communications initiative to monitor and address vaccine- and public health-related misinformation originating from official, federal sources in real time."
           ),
-          " Engaging with healthcare providers, the public health community, and medical societies, CIDRAP is leading a comprehensive review of scientific evidence to inform immunization recommendations so that clinicians have evidence-backed guidance on the key immunizations for all ages on COVID, RSV, and influenza heading into respiratory virus season."
+          tags$li(
+            tags$strong(
+              "Developing and disseminating the evidence base for immunization recommendations and clinical consideration."
+            ),
+            " Engaging with healthcare providers, the public health community, and medical societies, CIDRAP is leading a comprehensive review of scientific evidence to inform immunization recommendations so that clinicians have evidence-backed guidance on the key immunizations for all ages on COVID, RSV, and influenza heading into respiratory virus season."
+          ),
+          tags$li(
+            tags$strong("Fostering continued collaboration and visibility."),
+            " No single organization can operate in isolation. The scale and complexity of the challenges ahead demand ongoing collaboration and coordinated action across the ecosystem. Regular convening will support better alignment, reduce duplication, and help prioritize and address emerging issues in real time."
+          ),
         ),
-        tags$li(
-          tags$strong("Fostering continued collaboration and visibility."),
-          " No single organization can operate in isolation. The scale and complexity of the challenges ahead demand ongoing collaboration and coordinated action across the ecosystem. Regular convening will support better alignment, reduce duplication, and help prioritize and address emerging issues in real time."
+        tags$p(
+          "The systematic review includes studies published between January 2020 - July 2026."
         ),
-      ),
-      tags$p(
-        "The systematic review includes studies published between January 2020 - July 2026."
+        # tags$div(
+        #   class = "definitions-box",
+        #   tags$details(
+        #     tags$summary("Definitions / Abbreviations"),
+        #     tags$div(
+        #       class = "definitions-content",
+        #       uiOutput("about_definitions")
+        #     )
+        #   )
+        # )
+        tags$div(
+          class = "definitions-box",
+          tags$details(
+            tags$summary("Definitions / Abbreviations"),
+            tags$div(
+              class = "definitions-content",
+              tableOutput("about_definitions_table")
+            )
+          )
+        )
       )
     ),
     # tabPanel(
@@ -359,6 +460,34 @@ server <- function(input, output, session) {
   #   shinyjs::toggleClass(selector = "body", class = "dark-mode")
   # })
 
+  output$about_definitions_table <- renderTable(
+    {
+      combined_footnotes
+    },
+    rownames = FALSE,
+    colnames = TRUE,
+    striped = TRUE,
+    bordered = FALSE,
+    spacing = "s",
+    align = "l"
+  )
+  # output$about_definitions <- renderUI({
+  #   if (nrow(combined_footnotes) == 0) {
+  #     return(p("No definitions available."))
+  #   }
+  #
+  #   tagList(
+  #     lapply(seq_len(nrow(combined_footnotes)), function(i) {
+  #       tags$div(
+  #         class = "definition-item",
+  #         tags$span(class = "definition-term", combined_footnotes$Term[i]),
+  #         tags$span(class = "definition-sep", " — "),
+  #         tags$span(class = "definition-text", combined_footnotes$Definition[i])
+  #       )
+  #     })
+  #   )
+  # })
+
   observeEvent(input$toggle_studies_sidebar, {
     shinyjs::toggle("studies_sidebar", anim = TRUE)
   })
@@ -525,6 +654,9 @@ server <- function(input, output, session) {
     display <- display %>%
       left_join(n_long %>% select(char_row_id, N), by = "char_row_id") %>%
       rename(N_numeric = N)
+
+    # Display only the numeric N value (no text)
+    display$`Total N` <- display$N_numeric
 
     # Make Study column clickable (helper)
     display <- make_study_clickable(display)

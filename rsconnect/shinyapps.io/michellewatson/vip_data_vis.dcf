@@ -5,7 +5,7 @@ account: michellewatson
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17656767
-bundleId: 12460446
+bundleId: 12461109
 url: https://michellewatson.shinyapps.io/vip_data_vis/
 version: 1
 asMultiple: FALSE

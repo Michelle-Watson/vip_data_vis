@@ -53,7 +53,7 @@ column_order <- c(
 desired_widths <- c(
   "Study" = 150,
   "Population" = 130,
-  "Total N" = 80,
+  "Total N" = 30,
   "Study Design" = 160,
   "Risk of Bias" = 120,
   "Virus" = 100,
