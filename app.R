@@ -174,81 +174,128 @@ ui <- fluidPage(
       "About",
       tags$div(
         class = "about-page-content",
+
         tags$div(
           class = "about-logo-card",
           tags$img(src = "VIP_Logo_Horizontal.png", class = "about-logo")
         ),
-        tags$h2(
-          tags$b("Welcome to the Vaccine Integrity Project!")
+
+        tags$h1(
+          "Interactive Data Tool: Evidence for Respiratory Season Immunizations (2026-2027 update)"
         ),
+
         tags$p(
-          style = "color: #c865ab;",
-          "Questions/comments/concerns about this application? Please e‑mail Michelle Watson at",
+          "This tool aims to summarize newly published research evaluating the effectiveness and safety of vaccine and immunization products for COVID-19, influenza, and respiratory syncytial virus (RSV) that are available in the United States."
+        ),
+
+        tags$h2("About the tool"),
+        tags$p(
+          "Data on respiratory virus immunizations were identified through systematic reviews (one per virus, three total) of peer-reviewed research published between August 2025 and June 2026. Updating the Vaccine Integrity Project’s evidence review for the ",
           tags$a(
-            href = "mailto:michellealiciawatson@gmail.com",
-            "michellealiciawatson@gmail.com",
-            style = "color: #c865ab;" # match the pink color
-          )
+            "2025–26 respiratory virus season",
+            href = "https://www.nejm.org/doi/full/10.1056/NEJMsa2514268"
+          ),
+          ", these reviews followed a structured and transparent process for identifying the science underpinning recommendations for respiratory virus immunizations. The review methods and results are reported more extensively in the protocols and publications linked below."
         ),
-        # New paragraph with the Evidence Base link
+
+        tags$h2("How to use this tool"),
         tags$p(
-          style = "color: #c865ab;",
-          tags$a(
-            href = "https://vaxintegrity.cidrap.umn.edu/evidence-reviews/2025-2026-respiratory-season",
-            "The Evidence Base for 2025-26 Respiratory Season Immunizations",
-            style = "color: #0066cc;"
-          )
-        ),
-        tags$h2(
-          tags$b("About the Vaccine Integrity Project:")
-        ),
-        tags$p(
-          "CIDRAP's Vaccine Integrity Project is an initiative dedicated to safeguarding vaccine use in the U.S. so that it remains grounded in the best available science, free from external influence, and focused on optimizing protection of individuals, families, and communities against vaccine-preventable diseases."
-        ),
-        tags$p(
-          "The Vaccine Integrity Project issued its final report from the planning phase summarizing its findings from the exploratory phase, focused on what is needed to ensure the integrity of the U.S. vaccine system, including vaccine evaluations and clinical guidelines based on rigorous and timely reviews."
-        ),
-        tags$p(
-          "The Vaccine Integrity Project is focusing on actions that stemmed from its earlier work:"
+          "Visit the “studies” or “outcome” tab, then filter the results by virus, population or study characteristics, or the type of information reported."
         ),
         tags$ul(
           tags$li(
-            tags$strong("Implementing a rapid response accountability effort."),
-            " In response to misleading and inaccurate claims, the Vaccine Integrity Project aims to launch a rapid response communications initiative to monitor and address vaccine- and public health-related misinformation originating from official, federal sources in real time."
+            tags$strong("Studies tab"),
+            " - a list of included studies with reference information, study characteristics, and risk of bias assessment"
           ),
           tags$li(
-            tags$strong(
-              "Developing and disseminating the evidence base for immunization recommendations and clinical consideration."
-            ),
-            " Engaging with healthcare providers, the public health community, and medical societies, CIDRAP is leading a comprehensive review of scientific evidence to inform immunization recommendations so that clinicians have evidence-backed guidance on the key immunizations for all ages on COVID, RSV, and influenza heading into respiratory virus season."
-          ),
-          tags$li(
-            tags$strong("Fostering continued collaboration and visibility."),
-            " No single organization can operate in isolation. The scale and complexity of the challenges ahead demand ongoing collaboration and coordinated action across the ecosystem. Regular convening will support better alignment, reduce duplication, and help prioritize and address emerging issues in real time."
-          ),
+            tags$strong("Outcomes tab"),
+            " - estimates of vaccine effectiveness or efficacy (VE) and safety extracted from included studies"
+          )
         ),
         tags$p(
-          "The systematic review includes studies published between January 2020 - July 2026."
+          "The default view is “lightweight” to optimize screen space; uncheck “lightweight view” to show all columns."
         ),
-        # tags$div(
-        #   class = "definitions-box",
-        #   tags$details(
-        #     tags$summary("Definitions / Abbreviations"),
-        #     tags$div(
-        #       class = "definitions-content",
-        #       uiOutput("about_definitions")
-        #     )
-        #   )
-        # )
+
+        tags$h2("Read the systematic review publications"),
+        tags$p("Published online September 2, 2026"),
+        tags$ul(
+          tags$li(tags$a(
+            "COVID-19 (doi:10.1001/jama.2026.18191)",
+            href = "https://doi.org/10.1001/jama.2026.18191"
+          )),
+          tags$li(tags$a(
+            "Influenza (doi:10.1001/jama.2026.18126)",
+            href = "https://doi.org/10.1001/jama.2026.18126"
+          )),
+          tags$li(tags$a(
+            "RSV (doi:10.1001/jama.2026.17871)",
+            href = "https://doi.org/10.1001/jama.2026.17871"
+          ))
+        ),
+
+        tags$h2("Read the review protocols"),
+        tags$p("Registered on April 14, 2026; updated on May 16, 2026"),
+        tags$ul(
+          tags$li(tags$a(
+            "COVID-19",
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365950"
+          )),
+          tags$li(tags$a(
+            "Influenza",
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365916"
+          )),
+          tags$li(tags$a(
+            "RSV",
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365938"
+          ))
+        ),
+
+        tags$h2("Access the source data and code"),
+        tags$ul(
+          tags$li(tags$a(
+            "View this project on GitHub",
+            href = "https://github.com/michelle-Watson",
+            target = "_blank"
+          ))
+        ),
+
+        tags$h2("Cite this tool"),
+        tags$p("TBD"),
+
+        tags$h2("Contact"),
+        tags$p(
+          "Michelle Watson - ",
+          tags$a(
+            href = "mailto:michellealiciawatson@gmail.com",
+            "michellealiciawatson@gmail.com"
+          )
+        ),
+        tags$p(
+          "Public-facing feedback - ",
+          tags$a(
+            href = "mailto:admin@evidencefoundation.org",
+            "admin@evidencefoundation.org"
+          )
+        ),
+
         tags$div(
           class = "definitions-box",
           tags$details(
             tags$summary("Definitions / Abbreviations"),
             tags$div(
               class = "definitions-content",
-              tableOutput("about_definitions_table")
+              uiOutput("about_definitions")
             )
           )
+        ),
+
+        tags$hr(),
+
+        tags$p(
+          "This page was created using ",
+          tags$a("shiny", href = "https://shiny.posit.co/"),
+          ": Web Application Framework for R. ",
+          "Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Aden-Buie G, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2026). shiny: Web Application Framework for R. R package version 1.14.0.9000, https://shiny.posit.co/."
         )
       )
     ),
@@ -388,7 +435,7 @@ ui <- fluidPage(
     #   )
     # )
     tabPanel(
-      "Outcomes",
+      "Outcomes Data",
       layout_sidebar(
         # height = "calc(59vh + 170px)",
         sidebar = sidebar(
