@@ -259,7 +259,16 @@ ui <- fluidPage(
         ),
 
         tags$h3("Cite this tool"),
-        tags$p("TBD"),
+        tags$p(
+          "Watson, M. (2026). ",
+          tags$em("Respiratory Season Data Dashboard (2026-2027)"),
+          " (Version 1.0.0) [Computer software]. Zenodo. ",
+          tags$a(
+            href = "https://zenodo.org/records/22199763",
+            target = "_blank",
+            "https://doi.org/10.5281/zenodo.22199763"
+          )
+        ),
 
         tags$h3("Contact"),
         tags$p(
