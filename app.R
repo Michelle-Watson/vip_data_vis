@@ -188,17 +188,16 @@ ui <- fluidPage(
           "This tool aims to summarize newly published research evaluating the effectiveness and safety of vaccine and immunization products for COVID-19, influenza, and respiratory syncytial virus (RSV) that are available in the United States."
         ),
 
-        tags$h2("About the tool"),
+        tags$h3("About the tool"),
         tags$p(
-          "Data on respiratory virus immunizations were identified through systematic reviews (one per virus, three total) of peer-reviewed research published between August 2025 and June 2026. Updating the Vaccine Integrity Project’s evidence review for the ",
-          tags$a(
-            "2025–26 respiratory virus season",
-            href = "https://www.nejm.org/doi/full/10.1056/NEJMsa2514268"
-          ),
-          ", these reviews followed a structured and transparent process for identifying the science underpinning recommendations for respiratory virus immunizations. The review methods and results are reported more extensively in the protocols and publications linked below."
+          HTML(
+            "Data on respiratory virus immunizations were identified through systematic reviews (one per virus, three total) of peer-reviewed research published between August 2025 and June 2026. Updating the Vaccine Integrity Project’s evidence review for the ",
+            "<a href='https://www.nejm.org/doi/full/10.1056/NEJMsa2514268'>2025-26 respiratory virus season</a>, ",
+            "these reviews followed a structured and transparent process for identifying the science underpinning recommendations for respiratory virus immunizations. The review methods and results are reported more extensively in the protocols and publications linked below."
+          )
         ),
 
-        tags$h2("How to use this tool"),
+        tags$h3("How to use this tool"),
         tags$p(
           "Visit the “studies” or “outcome” tab, then filter the results by virus, population or study characteristics, or the type of information reported."
         ),
@@ -216,24 +215,24 @@ ui <- fluidPage(
           "The default view is “lightweight” to optimize screen space; uncheck “lightweight view” to show all columns."
         ),
 
-        tags$h2("Read the systematic review publications"),
+        tags$h3("Read the systematic review publications"),
         tags$p("Published online September 2, 2026"),
         tags$ul(
           tags$li(tags$a(
-            "COVID-19 (doi:10.1001/jama.2026.18191)",
+            "COVID-19", #  (doi:10.1001/jama.2026.18191)
             href = "https://doi.org/10.1001/jama.2026.18191"
           )),
           tags$li(tags$a(
-            "Influenza (doi:10.1001/jama.2026.18126)",
+            "Influenza", #  (doi:10.1001/jama.2026.18126)
             href = "https://doi.org/10.1001/jama.2026.18126"
           )),
           tags$li(tags$a(
-            "RSV (doi:10.1001/jama.2026.17871)",
+            "RSV", # (doi:10.1001/jama.2026.17871)
             href = "https://doi.org/10.1001/jama.2026.17871"
           ))
         ),
 
-        tags$h2("Read the review protocols"),
+        tags$h3("Read the review protocols"),
         tags$p("Registered on April 14, 2026; updated on May 16, 2026"),
         tags$ul(
           tags$li(tags$a(
@@ -250,7 +249,7 @@ ui <- fluidPage(
           ))
         ),
 
-        tags$h2("Access the source data and code"),
+        tags$h3("Access the source data and code"),
         tags$ul(
           tags$li(tags$a(
             "View this project on GitHub",
@@ -259,19 +258,19 @@ ui <- fluidPage(
           ))
         ),
 
-        tags$h2("Cite this tool"),
+        tags$h3("Cite this tool"),
         tags$p("TBD"),
 
-        tags$h2("Contact"),
+        tags$h3("Contact"),
         tags$p(
-          "Michelle Watson - ",
+          "Developer: Michelle Watson - ",
           tags$a(
             href = "mailto:michellealiciawatson@gmail.com",
             "michellealiciawatson@gmail.com"
           )
         ),
         tags$p(
-          "Public-facing feedback - ",
+          "Questions or feedback about the data tool? Email: ",
           tags$a(
             href = "mailto:admin@evidencefoundation.org",
             "admin@evidencefoundation.org"
@@ -284,7 +283,7 @@ ui <- fluidPage(
             tags$summary("Definitions / Abbreviations"),
             tags$div(
               class = "definitions-content",
-              uiOutput("about_definitions")
+              tableOutput("about_definitions_table")
             )
           )
         ),
