@@ -264,9 +264,9 @@ ui <- fluidPage(
           tags$em("Respiratory Season Data Dashboard (2026-2027)"),
           " (Version 1.0.0) [Computer software]. Zenodo. ",
           tags$a(
-            href = "https://zenodo.org/records/22199763",
+            href = "https://zenodo.org/records/22201962",
             target = "_blank",
-            "https://doi.org/10.5281/zenodo.22199763"
+            "https://doi.org/10.5281/zenodo.22201962"
           )
         ),
 
