@@ -105,3 +105,54 @@ filterSidebarLayout <- function(
     )
   )
 }
+
+
+# Helper: map risk of bias text to CSS class
+rob_category_class <- function(rating) {
+  rating_trim <- str_trim(rating)
+  case_when(
+    rating_trim == "Low" |
+      rating_trim ==
+        "Low risk of bias (except for concerns about uncontrolled confounding)" ~ "rob-low",
+    rating_trim == "Some Concerns" ~ "rob-some-concerns",
+    rating_trim == "Moderate" ~ "rob-moderate",
+    rating_trim == "High" ~ "rob-high",
+    rating_trim == "Serious" ~ "rob-serious",
+    rating_trim == "Critical" ~ "rob-critical",
+    rating_trim %in%
+      c(
+        "No risk of bias data in outcomes sheet",
+        "Not Assessed Due to Study Design"
+      ) ~ "rob-no-data",
+    TRUE ~ "rob-unknown" # fallback
+  )
+}
+
+# Helper: turn a risk of bias string into colored pills HTML
+make_rob_pills <- function(rob_text) {
+  if (is.na(rob_text) || str_trim(rob_text) == "") {
+    return("")
+  }
+  # Split by ; (possible multiple ratings)
+  parts <- str_split(rob_text, ";\\s*")[[1]]
+  parts <- parts[str_trim(parts) != ""]
+  if (length(parts) == 0) {
+    return("")
+  }
+
+  pills <- vapply(
+    parts,
+    function(p) {
+      cls <- rob_category_class(p)
+      paste0(
+        '<span class="rob-pill ',
+        cls,
+        '">',
+        htmltools::htmlEscape(p),
+        '</span>'
+      )
+    },
+    character(1)
+  )
+  paste0(pills, collapse = " ")
+}

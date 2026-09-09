@@ -283,3 +283,60 @@ filter_message_css <- paste0(
   }
   )"
 )
+
+
+filter_message_css <- paste0(
+  filter_message_css,
+  r"(
+  .rob-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 1px 2px;
+    white-space: normal;
+  }
+  
+  .rob-low {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .rob-some-concerns {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .rob-moderate {
+    background-color: #ffeaa7;
+    color: #6c5200;
+  }
+  
+  .rob-high {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .rob-serious {
+    background-color: #f5c6cb;
+    color: #721c24;
+  }
+  
+  .rob-critical {
+    background-color: #000000;
+    color: #ffffff;
+  }
+  
+  .rob-no-data {
+    background-color: #e2e3e5;
+    color: #383d41;
+  }
+  
+  .rob-unknown {
+    background-color: #f0f0f0;
+    color: #333333;
+  }
+  )"
+)

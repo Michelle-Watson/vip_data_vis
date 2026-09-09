@@ -11,6 +11,7 @@ library(writexl)
 library(ggplot2)
 library(rlang)
 library(bslib)
+library(stringr)
 
 source("shiny_aux/helpers.R")
 source("shiny_aux/config.R")
@@ -435,6 +436,12 @@ ui <- fluidPage(
             "Lightweight view (hide article details)",
             value = TRUE
           ),
+          # Inside sidebar of Studies tab
+          checkboxInput(
+            "rob_color_mode_studies",
+            "Color-code Risk of Bias",
+            value = FALSE
+          ),
           div(
             style = "margin-bottom: 8px;",
             downloadButton(
@@ -528,6 +535,12 @@ ui <- fluidPage(
             "outcome_lightweight",
             "Lightweight view (hide counts, outcome definition, factors adjusted)",
             value = TRUE
+          ),
+          # Inside sidebar of Studies tab
+          checkboxInput(
+            "rob_color_mode_outcomes",
+            "Color-code Risk of Bias",
+            value = FALSE
           ),
           div(
             style = "margin-bottom: 8px;",
@@ -784,6 +797,15 @@ server <- function(input, output, session) {
       left_join(n_long %>% select(char_row_id, N), by = "char_row_id") %>%
       rename(N_numeric = N)
 
+    # Apply color coding if toggled on
+    if (isTRUE(input$rob_color_mode_studies)) {
+      display$`Risk of Bias` <- vapply(
+        display$`Risk of Bias`,
+        make_rob_pills,
+        character(1)
+      )
+    }
+
     # Display only the numeric N value (no text)
     display$`Total N` <- display$N_numeric
 
@@ -910,6 +932,7 @@ server <- function(input, output, session) {
       # extensions = "FixedColumns",
       # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
+        processing = FALSE,
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' f> t <'bottom' i p>",
         pageLength = 50,
@@ -1163,6 +1186,15 @@ server <- function(input, output, session) {
   processed_outcome_data <- reactive({
     display <- filtered_outcome_data()
 
+    # Apply color coding if toggled on
+    if (isTRUE(input$rob_color_mode_outcomes)) {
+      display$`Risk of Bias` <- vapply(
+        display$`Risk of Bias`,
+        make_rob_pills,
+        character(1)
+      )
+    }
+
     # Add Link/DOI from Study Characteristics for clickable Study Label
     display <- display %>%
       left_join(
@@ -1238,7 +1270,7 @@ server <- function(input, output, session) {
 
   # 8. Render the outcomes table
   # server = TRUE, # large dataset – server‑side processing
-  output$outcomes_table <- renderDT(server = TRUE, {
+  output$outcomes_table <- renderDT(server = FALSE, {
     display <- processed_outcome_data()
     col_defs <- make_col_defs(display, outcome_desired_widths)
 
@@ -1340,6 +1372,7 @@ server <- function(input, output, session) {
       extensions = c("FixedColumns", "Responsive"),
       # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
+        processing = FALSE,
         # dom = "<'top' p> t <'bottom' i p>",
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' f> t <'bottom' i p>",

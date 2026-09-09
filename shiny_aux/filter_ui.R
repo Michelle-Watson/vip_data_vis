@@ -135,19 +135,73 @@ studyDesignFilterUI <- function(id) {
 
 robFilterUI <- function(id) {
   ns <- NS(id)
+  # define colored labels
+  choices <- c(
+    "Low" = "Low",
+    "Some Concerns" = "Some Concerns",
+    "Moderate" = "Moderate",
+    "High" = "High",
+    "Serious" = "Serious",
+    "Critical" = "Critical"
+  )
+
+  # create HTML labels with colored dots
+  choice_names <- lapply(names(choices), function(label) {
+    # map label to color class or inline style
+    color <- switch(
+      label,
+      "Low" = "#d4edda",
+      "Some Concerns" = "#fff3cd",
+      "Moderate" = "#ffeaa7",
+      "High" = "#f8d7da",
+      "Serious" = "#f5c6cb",
+      "Critical" = "#000000",
+      "#f0f0f0"
+    )
+    tags$span(
+      style = paste0(
+        "display:inline-block; width:12px; height:12px; border-radius:50%; background:",
+        color,
+        "; margin-right:6px;"
+      ),
+      ""
+    )
+    # better to include text as well; but checkboxGroupInput will already show label text
+    # We can wrap the label with a span that includes the dot and text
+    # Actually, easier: use HTML in choiceNames with full label
+  })
+  # Actually, we need to combine dot and text; the choiceNames can be full HTML
+  choice_names <- lapply(names(choices), function(label) {
+    color <- switch(
+      label,
+      "Low" = "#d4edda",
+      "Some Concerns" = "#fff3cd",
+      "Moderate" = "#ffeaa7",
+      "High" = "#f8d7da",
+      "Serious" = "#f5c6cb",
+      "Critical" = "#000000",
+      "#f0f0f0"
+    )
+    tags$span(
+      style = "display:flex; align-items:center;",
+      tags$span(
+        style = paste0(
+          "display:inline-block; width:12px; height:12px; border-radius:50%; background:",
+          color,
+          "; margin-right:6px;"
+        )
+      ),
+      label
+    )
+  })
+
   tagList(
     h4("Risk of Bias", style = "margin-bottom: 20px;"),
     checkboxGroupInput(
       ns("rob_levels"),
       label = NULL,
-      choices = c(
-        "Low" = "Low",
-        "Some Concerns" = "Some Concerns",
-        "Moderate" = "Moderate",
-        "High" = "High",
-        "Serious" = "Serious",
-        "Critical" = "Critical"
-      ),
+      choiceNames = choice_names,
+      choiceValues = unname(choices),
       selected = NULL
     ),
     tags$div(class = "filter-message", textOutput(ns("rob_message")))
@@ -184,7 +238,7 @@ simpleFiltersUI <- function(id) {
         style = "display: flex; align-items: baseline; gap: 8px;",
         actionLink(
           ns("clear_simple"),
-          label = "Clear filters\U1F9F9",
+          label = "Clear\U1F9F9",
           style = "color: #888; text-decoration: none; cursor: pointer;"
         ),
         textOutput(ns("cleared_msg"))
@@ -251,7 +305,7 @@ outcomeSimpleFiltersUI <- function(id) {
         style = "display: flex; align-items: baseline; gap: 8px;",
         actionLink(
           ns("clear_simple"),
-          label = "Clear filters\U1F9F9",
+          label = "Clear\U1F9F9",
           style = "color: #888; text-decoration: none; cursor: pointer;"
         ),
         textOutput(ns("cleared_msg"))
@@ -288,7 +342,7 @@ advancedFiltersUI <- function(id) {
         style = "display: flex; align-items: baseline; gap: 8px;",
         actionLink(
           ns("clear_advanced"),
-          label = "Clear all advanced filters \U1F9F9",
+          label = "Clear \U1F9F9",
           style = "color: #888; text-decoration: none; cursor: pointer;"
         ),
         textOutput(ns("cleared_msg"))
