@@ -287,8 +287,9 @@ ui <- fluidPage(
         tags$p(
           HTML(
             "Data on respiratory virus immunizations were identified through systematic reviews (one per virus, three total) of peer-reviewed research published between August 2025 and June 2026. Updating the Vaccine Integrity Project’s evidence review for the ",
-            "<a href='https://www.nejm.org/doi/full/10.1056/NEJMsa2514268'>2025-26 respiratory virus season</a>, ",
-            "these reviews followed a structured and transparent process for identifying the science underpinning recommendations for respiratory virus immunizations. The review methods and results are reported more extensively in the protocols and publications linked below."
+            "<a href='https://www.nejm.org/doi/full/10.1056/NEJMsa2514268' target='_blank' rel='noopener noreferrer'>2025-26 respiratory virus season</a>, ",
+            "these reviews followed a structured and transparent process for identifying the science underpinning recommendations for respiratory virus immunizations. The review methods and results are reported more extensively in the protocols and publications linked below. You can view this data tool in a new tab by clicking",
+            "<a href='https://evidencefoundation.shinyapps.io/vip_data_vis/' target='_blank' rel='noopener noreferrer'>here</a>. "
           )
         ),
 
@@ -315,15 +316,21 @@ ui <- fluidPage(
         tags$ul(
           tags$li(tags$a(
             "COVID-19", #  (doi:10.1001/jama.2026.18191)
-            href = "https://doi.org/10.1001/jama.2026.18191"
+            href = "https://doi.org/10.1001/jama.2026.18191",
+            target = "_blank",
+            rel = "noopener noreferrer"
           )),
           tags$li(tags$a(
             "Influenza", #  (doi:10.1001/jama.2026.18126)
-            href = "https://doi.org/10.1001/jama.2026.18126"
+            href = "https://doi.org/10.1001/jama.2026.18126",
+            target = "_blank",
+            rel = "noopener noreferrer"
           )),
           tags$li(tags$a(
             "RSV", # (doi:10.1001/jama.2026.17871)
-            href = "https://doi.org/10.1001/jama.2026.17871"
+            href = "https://doi.org/10.1001/jama.2026.17871",
+            target = "_blank",
+            rel = "noopener noreferrer"
           ))
         ),
 
@@ -332,15 +339,21 @@ ui <- fluidPage(
         tags$ul(
           tags$li(tags$a(
             "COVID-19",
-            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365950"
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365950",
+            target = "_blank",
+            rel = "noopener noreferrer"
           )),
           tags$li(tags$a(
             "Influenza",
-            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365916"
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365916",
+            target = "_blank",
+            rel = "noopener noreferrer"
           )),
           tags$li(tags$a(
             "RSV",
-            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365938"
+            href = "https://www.crd.york.ac.uk/PROSPERO/view/CRD420261365938",
+            target = "_blank",
+            rel = "noopener noreferrer"
           ))
         ),
 
@@ -349,7 +362,8 @@ ui <- fluidPage(
           tags$li(tags$a(
             "View this project on GitHub",
             href = "https://github.com/michelle-Watson",
-            target = "_blank"
+            target = "_blank",
+            rel = "noopener noreferrer"
           ))
         ),
 
@@ -361,6 +375,7 @@ ui <- fluidPage(
           tags$a(
             href = "https://zenodo.org/records/22201962",
             target = "_blank",
+            rel = "noopener noreferrer",
             "https://doi.org/10.5281/zenodo.22201962"
           )
         ),
@@ -378,6 +393,7 @@ ui <- fluidPage(
           tags$a(
             href = "mailto:admin@evidencefoundation.org",
             # "admin@evidencefoundation.org"
+            target = "_blank",
             "evidencefoundation.org"
           )
         ),
@@ -395,11 +411,24 @@ ui <- fluidPage(
 
         tags$hr(),
 
+        # tags$p(
+        #   "This page was created using ",
+        #   tags$a(
+        #     "shiny",
+        #     href = "https://shiny.posit.co/",
+        #     target = "_blank",
+        #     rel = "noopener noreferrer",
+        #   ),
+        #   ": Web Application Framework for R. ",
+        #   "Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Aden-Buie G, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2026). shiny: Web Application Framework for R. R package version 1.14.0.9000, https://shiny.posit.co/."
+        # ),
         tags$p(
-          "This page was created using ",
-          tags$a("shiny", href = "https://shiny.posit.co/"),
-          ": Web Application Framework for R. ",
-          "Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Aden-Buie G, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2026). shiny: Web Application Framework for R. R package version 1.14.0.9000, https://shiny.posit.co/."
+          HTML(
+            'This page was created using <a href="https://shiny.posit.co/" target="_blank" rel="noopener noreferrer">shiny</a>: Web Application Framework for R. '
+          ),
+          HTML(
+            'Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Aden-Buie G, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2026). shiny: Web Application Framework for R. R package version 1.14.0.9000, <a href="https://shiny.posit.co/" target="_blank" rel="noopener noreferrer">https://shiny.posit.co/</a>.'
+          )
         )
       )
     ),
