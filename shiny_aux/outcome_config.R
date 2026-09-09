@@ -36,6 +36,8 @@ outcome_column_order <- c(
   "char_row_id",
   "Study Label",
   "Study Label with subgroup indication",
+  "Population",
+  "Age Range",
   "Covidence ID",
   "Outcome",
   "Estimate (95% CI)",
@@ -55,8 +57,8 @@ outcome_column_order <- c(
 
   "Type of Estimate",
 
-  "Population",
-  "Age Range",
+  # "Population",
+  # "Age Range",
   "Study Design",
   "Risk of Bias",
   "Minimum Age",

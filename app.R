@@ -901,8 +901,9 @@ server <- function(input, output, session) {
     # Add responsive priorities: lower = more important, collapses later
     priority_map <- c(
       "Study" = 1,
-      "Virus" = 2,
-      "Population" = 3,
+      "Population" = 2,
+      "Virus" = 3,
+      # "Population" = 3,
       "Total N" = 4,
       "Study Design" = 5,
       "Domains Reported" = 6,
