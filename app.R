@@ -39,6 +39,11 @@ virus_long <- read_excel(char_path, sheet = "Virus_Long")
 outcomes_long <- read_excel(char_path, sheet = "Outcomes_Long")
 rob_long <- read_excel(char_path, sheet = "RoB_Long")
 
+# Pre-compute lookup table for Link/DOI (one row per study)
+link_doi_lookup <- char_data %>%
+  select(char_row_id, Link, DOI) %>%
+  mutate(char_row_id = as.character(char_row_id)) %>%
+  distinct()
 
 outcome_path <- "outcome_tables/All_Tables_split.xlsx"
 # outcome_data <- read_excel(outcome_path, sheet = "All")
@@ -47,6 +52,10 @@ all_outcome_ids <- unique(outcome_data$row_id)
 
 outcome_pop_long <- read_excel(outcome_path, sheet = "Population_Long")
 outcome_virus_long <- read_excel(outcome_path, sheet = "Virus_Long")
+
+# Pre-compute lookup table for Link/DOI (one row per study)
+outcome_data_display <- outcome_data %>%
+  left_join(link_doi_lookup, by = "char_row_id")
 
 # Domain mapping for outcomes. Each outcome row has exactly one domain
 # It's already in the main sheet, but need a long sheet since the domain function expects a long sheet. Just adding this so the code can be reused. Revisit later since this is unnecessary overall
@@ -66,6 +75,18 @@ outcome_domain_long <- outcome_data %>%
 outcome_rob_long <- outcome_data %>%
   select(row_id, `Risk of Bias`) %>%
   rename(`Overall Risk` = `Risk of Bias`)
+
+# Pre-compute Risk of Bias pill HTML for each unique string
+unique_rob_strings <- unique(outcome_data$`Risk of Bias`)
+unique_rob_strings <- unique_rob_strings[
+  !is.na(unique_rob_strings) &
+    str_trim(unique_rob_strings) != ""
+]
+
+rob_pill_lookup <- setNames(
+  vapply(unique_rob_strings, make_rob_pills, character(1)),
+  unique_rob_strings
+)
 
 
 # Load footnotes from both source workbooks
@@ -440,7 +461,7 @@ ui <- fluidPage(
           checkboxInput(
             "rob_color_mode_studies",
             "Color-code Risk of Bias",
-            value = FALSE
+            value = TRUE
           ),
           div(
             style = "margin-bottom: 8px;",
@@ -540,7 +561,7 @@ ui <- fluidPage(
           checkboxInput(
             "rob_color_mode_outcomes",
             "Color-code Risk of Bias",
-            value = FALSE
+            value = TRUE
           ),
           div(
             style = "margin-bottom: 8px;",
@@ -1184,25 +1205,39 @@ server <- function(input, output, session) {
 
   # 6. Process the outcome table (plain study labels, column hiding, sorting)
   processed_outcome_data <- reactive({
-    display <- filtered_outcome_data()
+    # display <- filtered_outcome_data()
+    # Start from pre-joined data (already has Link/DOI)
+    display <- outcome_data_display %>%
+      filter(row_id %in% filtered_outcome_ids())
+
+    # Apply color coding if toggled on
+    # if (isTRUE(input$rob_color_mode_outcomes)) {
+    #   display$`Risk of Bias` <- vapply(
+    #     display$`Risk of Bias`,
+    #     make_rob_pills,
+    #     character(1)
+    #   )
+    # }
 
     # Apply color coding if toggled on
     if (isTRUE(input$rob_color_mode_outcomes)) {
-      display$`Risk of Bias` <- vapply(
-        display$`Risk of Bias`,
-        make_rob_pills,
-        character(1)
+      # Look up precomputed HTML; replace NA/empty with ""
+      display$`Risk of Bias` <- rob_pill_lookup[display$`Risk of Bias`]
+      display$`Risk of Bias` <- ifelse(
+        is.na(display$`Risk of Bias`),
+        "",
+        display$`Risk of Bias`
       )
     }
 
     # Add Link/DOI from Study Characteristics for clickable Study Label
-    display <- display %>%
-      left_join(
-        char_data %>%
-          select(char_row_id, Link, DOI) %>%
-          mutate(char_row_id = as.character(char_row_id)),
-        by = "char_row_id"
-      )
+    # display <- display %>%
+    #   left_join(
+    #     char_data %>%
+    #       select(char_row_id, Link, DOI) %>%
+    #       mutate(char_row_id = as.character(char_row_id)),
+    #     by = "char_row_id"
+    #   )
 
     # Sort alphabetically by plain Study Label BEFORE converting to HTML
     display <- display %>% arrange(`Study Label`)
@@ -1221,13 +1256,9 @@ server <- function(input, output, session) {
     # Hide unwanted columns
     display <- drop_columns(display, outcome_always_hide)
 
-    # Rename Vaccine -> Comparison
+    # Rename columns
     names(display)[names(display) == "Vaccine"] <- "Comparison"
-
-    # Rename Type of Outcome -> Type of Estimate
     names(display)[names(display) == "Type of Outcome"] <- "Type of Estimate"
-
-    # Rename Domain -> Type of Outcome
     names(display)[names(display) == "Domain"] <- "Type of Outcome"
 
     # Conditionally hide ecological total columns
