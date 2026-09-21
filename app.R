@@ -1280,7 +1280,9 @@ server <- function(input, output, session) {
     #   )
 
     # Sort alphabetically by plain Study Label BEFORE converting to HTML
-    display <- display %>% arrange(`Study Label`)
+    # display <- display %>% arrange(`Study Label`)
+    # Sort by Risk of Bias severity (Low first), then alphabetically within each level
+    display <- display %>% arrange(Rob_Sort_Order, `Study Label`)
 
     # Make the main study label clickable
     display <- make_label_clickable(display, "Study Label")
@@ -1458,6 +1460,7 @@ server <- function(input, output, session) {
       # extensions = "Responsive", # responsive for mobile, try it out. it DISABLES horizontal scrolling, we will always ONLY SHOW what can fit on the screen
       options = list(
         processing = FALSE,
+        order = list(list(rob_sort_idx, "asc")), # don't actually need this
         # dom = "<'top' p> t <'bottom' i p>",
         # showing # of # + pagination at bottom. Top only has pagination f=filter=search bar
         dom = "<'top' f> t <'bottom' i p>",
