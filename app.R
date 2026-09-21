@@ -847,6 +847,8 @@ server <- function(input, output, session) {
       left_join(n_long %>% select(char_row_id, N), by = "char_row_id") %>%
       rename(N_numeric = N)
 
+    display$Rob_Sort_Order <- rob_sort_order(display$`Risk of Bias`)
+
     # Apply color coding if toggled on
     if (isTRUE(input$rob_color_mode_studies)) {
       display$`Risk of Bias` <- vapply(
@@ -960,6 +962,10 @@ server <- function(input, output, session) {
     sp_start_idx <- which(names(display) == "Study Period Start") - 1
     sp_end_idx <- which(names(display) == "Study Period End") - 1
 
+    # inside renderDT after col_defs is built
+    rob_visible_idx <- which(names(display) == "Risk of Bias") - 1
+    rob_sort_idx <- which(names(display) == "Rob_Sort_Order") - 1
+
     col_defs <- c(
       col_defs,
       list(
@@ -969,7 +975,9 @@ server <- function(input, output, session) {
         list(targets = n_numeric_idx, visible = FALSE),
         list(targets = sp_visible_idx, orderData = sp_start_idx),
         list(targets = sp_start_idx, visible = FALSE),
-        list(targets = sp_end_idx, visible = FALSE)
+        list(targets = sp_end_idx, visible = FALSE),
+        list(targets = rob_visible_idx, orderData = rob_sort_idx),
+        list(targets = rob_sort_idx, visible = FALSE)
       )
     )
 
@@ -1249,6 +1257,8 @@ server <- function(input, output, session) {
     #   )
     # }
 
+    display$Rob_Sort_Order <- rob_sort_order(display$`Risk of Bias`)
+
     # Apply color coding if toggled on
     if (isTRUE(input$rob_color_mode_outcomes)) {
       # Look up precomputed HTML; replace NA/empty with ""
@@ -1421,6 +1431,20 @@ server <- function(input, output, session) {
         className = "all"
       ))
     )
+
+    # --- Custom sorting for Risk of Bias using hidden numeric rank ---
+    rob_visible_idx <- which(names(display) == "Risk of Bias") - 1
+    rob_sort_idx <- which(names(display) == "Rob_Sort_Order") - 1
+
+    if (length(rob_visible_idx) > 0 && length(rob_sort_idx) > 0) {
+      col_defs <- c(
+        col_defs,
+        list(
+          list(targets = rob_visible_idx, orderData = rob_sort_idx),
+          list(targets = rob_sort_idx, visible = FALSE)
+        )
+      )
+    }
 
     # Add sorting helper for Estimate (95% CI) via hidden numeric columns if present
     # For now we skip extra sorting helpers – you can add them later if needed.

@@ -55,6 +55,8 @@ outcome_column_order <- c(
   "Number of events in comparator arm",
   "Sample size comparator",
 
+  "Rob_Sort_Order",
+
   "Type of Estimate",
 
   # "Population",

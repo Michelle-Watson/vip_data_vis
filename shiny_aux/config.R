@@ -32,6 +32,7 @@ column_order <- c(
   # "Age (years)",
   "Total N",
   "N_numeric",
+  "Rob_Sort_Order",
   "Study Period",
   "Study Period Start",
   "Study Period End",

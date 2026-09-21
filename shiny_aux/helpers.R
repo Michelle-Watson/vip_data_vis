@@ -156,3 +156,26 @@ make_rob_pills <- function(rob_text) {
   )
   paste0(pills, collapse = " ")
 }
+
+
+# Map risk of bias text to sort order (1 = best, 8 = not assessed)
+rob_sort_order <- function(rating) {
+  rating_trim <- str_trim(rating)
+  case_when(
+    str_detect(
+      rating_trim,
+      regex("^Low risk of bias \\(except", ignore_case = TRUE)
+    ) ~ 2,
+    str_detect(rating_trim, regex("^Low", ignore_case = TRUE)) ~ 1,
+    str_detect(rating_trim, regex("^Some Concerns", ignore_case = TRUE)) ~ 3,
+    str_detect(rating_trim, regex("^Moderate", ignore_case = TRUE)) ~ 4,
+    str_detect(rating_trim, regex("^High", ignore_case = TRUE)) ~ 5,
+    str_detect(rating_trim, regex("^Serious", ignore_case = TRUE)) ~ 6,
+    str_detect(rating_trim, regex("^Critical", ignore_case = TRUE)) ~ 7,
+    str_detect(
+      rating_trim,
+      regex("Not Assessed|No risk of bias", ignore_case = TRUE)
+    ) ~ 8,
+    TRUE ~ 9 # fallback for unknown
+  )
+}
